@@ -26,10 +26,14 @@
   - 有密码强度提示；输入权限密码可在本次会话中解除限制；可一键移除保护。
   - 保存前都可以撤销。
 
+**新平台**
+
+- **Linux 版本**：提供 deb、rpm 和 AppImage（x86_64，glibc 2.35+）。
+
 **改进**
 
 - 加密文档在页面操作或撤销后不再重复要求输入密码。
-- 剪贴板被其他程序短暂占用时，截图会自动重试复制。
+- 剪贴板被其他程序短暂占用时，截图会自动重试复制；在 Linux 上截图会一直留在剪贴板中。
 - README 新增页面管理、水印和密码保护的截图与说明。
 
 ### v0.1.0 — 首个 Windows 版本
@@ -63,10 +67,14 @@
   - Strength meter; enter the permissions password to lift restrictions for the session; remove protection in one step.
   - Everything can be undone until you save.
 
+**New platform**
+
+- **Linux builds**: deb, rpm and AppImage (x86_64, glibc 2.35+).
+
 **Improved**
 
 - Protected documents no longer ask for their password again after page operations or undo.
-- Snapshots retry when another program briefly holds the clipboard.
+- Snapshots retry when another program briefly holds the clipboard, and stay on the Linux clipboard.
 - README: screenshots and descriptions of the organizer, watermarks and password protection.
 
 ### v0.1.0 — First Windows release

@@ -411,12 +411,26 @@ pub async fn clipboard_write_image(request: Request<'_>) -> AppResult<()> {
         }
         // Another program may hold the clipboard for a moment (clipboard managers, remote
         // desktop): retry briefly before giving up.
+        //
+        // On Linux (X11 / Wayland) the data is served by the `Clipboard` object for as long as
+        // it lives, so one instance is kept for the lifetime of the application.
+        static CLIPBOARD: std::sync::Mutex<Option<arboard::Clipboard>> = std::sync::Mutex::new(None);
         let write = || -> Result<(), arboard::Error> {
-            arboard::Clipboard::new()?.set_image(arboard::ImageData {
+            let mut slot = CLIPBOARD.lock().unwrap_or_else(|e| e.into_inner());
+            if slot.is_none() {
+                *slot = Some(arboard::Clipboard::new()?);
+            }
+            let clipboard = slot.as_mut().expect("clipboard initialised above");
+            let result = clipboard.set_image(arboard::ImageData {
                 width: meta.width,
                 height: meta.height,
                 bytes: std::borrow::Cow::Borrowed(pixels),
-            })
+            });
+            if result.is_err() {
+                // Start over with a fresh connection next time.
+                *slot = None;
+            }
+            result
         };
         let mut attempt = 0;
         loop {

@@ -14,7 +14,7 @@
 [![Release](https://img.shields.io/github/v/release/AlexEisie/YetAnotherPDFReader?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&color=e5484d)](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/AlexEisie/YetAnotherPDFReader/total?label=%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://github.com/AlexEisie/YetAnotherPDFReader/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078d4)](#-下载安装)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-0078d4)](#-下载安装)
 [![Rust](https://img.shields.io/badge/Rust-1.88%2B-b7410e?logo=rust)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2-24c8db?logo=tauri)](https://tauri.app/)
 [![Stars](https://img.shields.io/github/stars/AlexEisie/YetAnotherPDFReader?style=social)](https://github.com/AlexEisie/YetAnotherPDFReader/stargazers)
@@ -36,7 +36,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_%E4%B8%8B%E8%BD%BD-Windows_%E5%AE%89%E8%A3%85%E7%89%88_%7C_%E4%BE%BF%E6%90%BA%E7%89%88-e5484d?style=for-the-badge" alt="下载 Windows 版"></a>
+  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_%E4%B8%8B%E8%BD%BD-Windows_Windows_%7C_Linux-e5484d?style=for-the-badge" alt="下载 Windows 和 Linux 版"></a>
 </p>
 
 ---
@@ -53,8 +53,11 @@
 | **安装版（推荐）** | `YetAnotherPDFReader_x.y.z_x64-setup.exe` | 安装到当前用户，**不需要管理员权限**；会注册 `.pdf` 文件关联；安装界面支持简体中文、English、繁體中文和日本語 |
 | MSI 安装包 | `YetAnotherPDFReader_x.y.z_x64_en-US.msi` | 适合企业批量部署（组策略、Intune 等） |
 | **便携版** | `YetAnotherPDFReader_x.y.z_x64_portable.zip` | 解压即用。设置、最近文件、日志和缓存都保存在程序旁边的 `data` 文件夹里，可以放在 U 盘中随身携带 |
+| 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_amd64.deb` | Debian、Ubuntu、Linux Mint 等：`sudo apt install ./YetAnotherPDFReader_x.y.z_amd64.deb` |
+| 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora、openSUSE 等：`sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
+| 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | 适用于任意发行版：`chmod +x` 后直接运行 |
 
-**系统要求**：Windows 10 / 11（x64）。程序使用系统中的 Microsoft Edge WebView2 运行时，Windows 11 和保持更新的 Windows 10 都已自带。如果系统中没有，安装版会自动下载安装；便携版请先手动安装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
+**系统要求**：Windows 10 / 11（x64），或 Linux x86_64（glibc 2.35 及以上，例如 Ubuntu 22.04、Debian 12、Fedora 36 及更新版本，需要 WebKitGTK 4.1；deb / rpm 安装时会自动安装依赖）。Windows 上程序使用系统中的 Microsoft Edge WebView2 运行时，Windows 11 和保持更新的 Windows 10 都已自带。如果系统中没有，安装版会自动下载安装；便携版请先手动安装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
 
 > [!NOTE]
 > 安装包暂未做代码签名。首次运行如果出现 SmartScreen 提示，点击「更多信息」→「仍要运行」即可。每个版本文件的 SHA-256 校验值都列在 Release 说明中。
@@ -307,6 +310,8 @@ npm run tauri dev        # 开发模式（Rust 后端 + Vite 热更新）
 npm run tauri build      # 发布构建，生成 NSIS 安装包和 MSI
 ```
 
+**构建 Linux 版本**：在 Linux 或 WSL（推荐 Ubuntu 22.04）中运行 `bash scripts/build-linux.sh`，会生成 deb、rpm 和 AppImage，所需依赖列在脚本开头。
+
 只在浏览器中调试界面（使用模拟的后端）：
 
 ```bash
@@ -335,7 +340,8 @@ npm run test:release             # 发布版冒烟测试
 - [x] Windows 首个版本（安装版、MSI、便携版）
 - [ ] 代码签名
 - [ ] 应用内检查更新
-- [ ] macOS / Linux 构建（代码本身是跨平台的，尚未测试和打包）
+- [x] Linux 版本（deb、rpm、AppImage）
+- [ ] macOS 版本
 - [x] 页面管理、合并与拆分、水印、密码保护
 - [ ] 跨页截图、OCR、编辑 PDF 正文
 

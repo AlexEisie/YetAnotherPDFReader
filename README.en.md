@@ -14,7 +14,7 @@
 [![Release](https://img.shields.io/github/v/release/AlexEisie/YetAnotherPDFReader?color=e5484d)](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/AlexEisie/YetAnotherPDFReader/total)](https://github.com/AlexEisie/YetAnotherPDFReader/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078d4)](#-download)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-0078d4)](#-download)
 [![Rust](https://img.shields.io/badge/Rust-1.88%2B-b7410e?logo=rust)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2-24c8db?logo=tauri)](https://tauri.app/)
 [![Stars](https://img.shields.io/github/stars/AlexEisie/YetAnotherPDFReader?style=social)](https://github.com/AlexEisie/YetAnotherPDFReader/stargazers)
@@ -36,7 +36,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-Windows_installer_%7C_portable-e5484d?style=for-the-badge" alt="Download for Windows"></a>
+  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-Windows_%7C_Linux-e5484d?style=for-the-badge" alt="Download for Windows and Linux"></a>
 </p>
 
 ---
@@ -53,8 +53,11 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 | **Installer (recommended)** | `YetAnotherPDFReader_x.y.z_x64-setup.exe` | Per-user install, **no administrator rights needed**; registers the `.pdf` file association; setup in English, 简体中文, 繁體中文 and 日本語 |
 | MSI package | `YetAnotherPDFReader_x.y.z_x64_en-US.msi` | For managed deployment (Group Policy, Intune, …) |
 | **Portable** | `YetAnotherPDFReader_x.y.z_x64_portable.zip` | Unzip and run. Settings, recent files, logs and caches stay in a `data` folder next to the program, so it can live on a USB stick |
+| 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_amd64.deb` | Debian, Ubuntu, Linux Mint, …: `sudo apt install ./YetAnotherPDFReader_x.y.z_amd64.deb` |
+| 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora, openSUSE, …: `sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
+| 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | Any distribution: `chmod +x` and run |
 
-**Requirements**: Windows 10 / 11 (x64). The app uses the Microsoft Edge WebView2 runtime that ships with Windows 11 and up-to-date Windows 10. If it is missing, the installer downloads it automatically; for the portable version, install the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) first.
+**Requirements**: Windows 10 / 11 (x64), or Linux x86_64 with glibc 2.35+ (Ubuntu 22.04, Debian 12, Fedora 36 or newer) and WebKitGTK 4.1 — the deb / rpm packages pull in their dependencies. On Windows, the app uses the Microsoft Edge WebView2 runtime that ships with Windows 11 and up-to-date Windows 10. If it is missing, the installer downloads it automatically; for the portable version, install the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) first.
 
 > [!NOTE]
 > The binaries are not code-signed yet. If SmartScreen warns on first launch, click "More info" → "Run anyway". SHA-256 checksums of every file are listed in the release notes.
@@ -309,6 +312,8 @@ npm run tauri dev        # development (Rust back-end + Vite hot reload)
 npm run tauri build      # release build: NSIS installer and MSI
 ```
 
+**Linux packages**: run `bash scripts/build-linux.sh` on Linux or in WSL (Ubuntu 22.04 recommended) to build the deb, rpm and AppImage; the required packages are listed at the top of the script.
+
 UI-only development in a browser, with a mocked back-end:
 
 ```bash
@@ -337,7 +342,8 @@ npm run test:release             # release build smoke test
 - [x] First Windows release (installer, MSI, portable)
 - [ ] Code signing
 - [ ] In-app update check
-- [ ] macOS / Linux builds (the code is cross-platform but not yet tested or packaged)
+- [x] Linux builds (deb, rpm, AppImage)
+- [ ] macOS builds
 - [x] Page organizer, merging and splitting, watermarks, password protection
 - [ ] Multi-page snapshots, OCR, editing page content
 
