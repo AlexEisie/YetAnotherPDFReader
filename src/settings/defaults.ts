@@ -57,6 +57,8 @@ export interface Settings {
     pageIndicator: boolean;
     useSystemFonts: boolean;
     enableXfa: boolean;
+    /** Offer text recognition when a document looks scanned. */
+    ocrSuggest: boolean;
   };
   pageColors: {
     mode: PageMode;
@@ -230,6 +232,7 @@ export const DEFAULT_SETTINGS: Settings = {
     pageIndicator: true,
     useSystemFonts: true,
     enableXfa: false,
+    ocrSuggest: true,
   },
   pageColors: {
     mode: "normal",

@@ -20,3 +20,6 @@ npm-debug.log*
 # Generated test documents
 dev/samples/
 
+
+# ONNX Runtime shared library for Linux packages (downloaded by scripts/build-linux.sh)
+src-tauri/ocr/linux/

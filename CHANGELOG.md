@@ -4,6 +4,15 @@
 
 ## 简体中文
 
+### v0.3.0 — 离线文字识别（OCR）
+
+- **离线文字识别（OCR）**：采用 PaddleOCR PP-OCRv6 tiny 与 ONNX Runtime，在本机运行，支持中文和英文。
+  - 「框选识别文字」（`Ctrl+Alt+T`）：框选区域后查看、修改并复制识别结果。
+  - 「文字识别（OCR）」：为扫描件添加不可见的文字层，使其可以搜索、选择和复制；默认跳过已有文字的页面，可随时取消。
+  - 打开扫描文档时自动提示进行识别。
+  - 选型与实测数据见 [docs/ocr.md](docs/ocr.md)。
+- 安装包增大到约 15 MB，增加的部分是离线 OCR 引擎。
+
 ### v0.2.0 — 页面编辑、合并、水印与密码保护
 
 **新功能**
@@ -44,6 +53,15 @@
 - 安装版、MSI 和便携版。
 
 ## English
+
+### v0.3.0 — Offline text recognition (OCR)
+
+- **Offline text recognition (OCR)** with PaddleOCR PP-OCRv6 tiny on ONNX Runtime, running locally, for Chinese and English.
+  - *Recognize Text in Region* (`Ctrl+Alt+T`): drag over text, then check, edit and copy the result.
+  - *Recognize Text (OCR)*: add an invisible text layer so scans can be searched, selected and copied; pages that already have text are skipped by default, and recognition can be cancelled.
+  - Scanned documents are detected when opened.
+  - Research and benchmark: [docs/ocr.md](docs/ocr.md#english).
+- The installer grows to ~15 MB; the extra size is the offline OCR engine.
 
 ### v0.2.0 — Page editing, merging, watermarks and passwords
 

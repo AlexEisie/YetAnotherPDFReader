@@ -10,6 +10,7 @@ import type {
   DocumentChanges,
   DocumentFont,
   ExistingAnnotation,
+  OcrLine,
   PageOp,
   SecurityInfo,
   SecuritySettings,
@@ -134,6 +135,8 @@ export const api = {
   pdfExtract: (meta: { password: string | null; pages: number[]; target: string }, document: Uint8Array) =>
     call<SaveResult>("pdf_extract", encodeFrame(meta, [document])),
   pdfPageCount: (path: string, password: string | null) => call<number>("pdf_page_count", { path, password }),
+  /** Recognise text in RGBA pixels (OCR). */
+  ocrRecognize: (width: number, height: number, rgba: Uint8Array) => call<OcrLine[]>("ocr_recognize", encodeFrame({ width, height }, [rgba])),
   pdfSecurityInfo: (meta: { password: string | null }, document: Uint8Array) =>
     call<SecurityInfo>("pdf_security_info", encodeFrame(meta, [document])),
   /** Apply (`settings`) or remove (`settings: null`) password protection. */

@@ -191,3 +191,26 @@ fn protected_documents_stay_editable() {
     let plain = remove_security(&aes, Some("open"), None).unwrap();
     assert_eq!(markers(&plain, None), vec!["PAGE-A", "PAGE-B", "PAGE-C"]);
 }
+
+#[test]
+fn ocr_text_layer_is_invisible_and_extractable() {
+    let sample = sample();
+    let quad = |x: f64, y: f64, w: f64, h: f64| [x, y + h, x + w, y + h, x + w, y, x, y];
+    let layers = vec![TextLayerPage {
+        page: 0,
+        lines: vec![
+            TextLayerLine { text: "Scanned invoice 2026".into(), quad: quad(72.0, 600.0, 300.0, 18.0) },
+            TextLayerLine { text: "扫描件文字识别".into(), quad: quad(72.0, 560.0, 200.0, 20.0) },
+        ],
+    }];
+    let out = ops(&sample.bytes, None, &[PageOp::TextLayer { pages: layers, cjk_hint: Some("zh-CN".into()) }], &[]);
+    assert!(out.starts_with(&sample.bytes), "incremental update");
+    let doc = load(&out, None);
+    let c = content(&doc, 0);
+    assert!(c.contains("3 Tr"), "{c}");
+    assert!(c.contains("(Scanned invoice 2026) Tj"), "{c}");
+    assert_eq!(markers(&out, None)[0], "PAGE-A");
+    std::fs::write(output_dir().join("ocr_text_layer.pdf"), &out).unwrap();
+    let err = apply_page_ops(&sample.bytes, None, &[PageOp::TextLayer { pages: vec![TextLayerPage { page: 9, lines: vec![] }], cjk_hint: None }], &[]).unwrap_err();
+    assert!(matches!(err, PdfError::InvalidRequest(_)));
+}

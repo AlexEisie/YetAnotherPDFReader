@@ -67,6 +67,8 @@ export interface DialogMap {
   splitDocument: { props: { tabId: string }; result: void };
   watermark: { props: { tabId: string; pages?: number[] }; result: void };
   security: { props: { tabId: string }; result: void };
+  ocrResult: { props: { text: string; confidence: number }; result: void };
+  ocrDocument: { props: { tabId: string; pages?: number[] }; result: void };
   signature: { props: { initials?: boolean }; result: void };
   stampEditor: { props: Record<string, never>; result: void };
 }

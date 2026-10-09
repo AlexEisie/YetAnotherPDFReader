@@ -47,6 +47,8 @@ pub enum AppError {
     Io(String),
     #[error("the clipboard is not available: {0}")]
     Clipboard(String),
+    #[error("text recognition failed: {0}")]
+    Ocr(String),
     #[error("internal error: {0}")]
     Internal(String),
 }
@@ -72,6 +74,7 @@ impl AppError {
             AppError::InvalidArgument(_) => "INVALID_ARGUMENT",
             AppError::Io(_) => "IO_ERROR",
             AppError::Clipboard(_) => "CLIPBOARD",
+            AppError::Ocr(_) => "OCR",
             AppError::Internal(_) => "INTERNAL",
         }
     }
@@ -143,6 +146,7 @@ impl Serialize for AppError {
             | AppError::InvalidArgument(d)
             | AppError::Io(d)
             | AppError::Clipboard(d)
+            | AppError::Ocr(d)
             | AppError::Internal(d) => Some(d.clone()),
             AppError::TooLarge(size) => Some(size.to_string()),
             _ => None,

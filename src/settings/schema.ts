@@ -256,6 +256,7 @@ export const SETTING_PAGES: SettingPage[] = [
           { kind: "toggle", path: "reading.highlightLinks", label: "settings.highlightLinks" },
           { kind: "toggle", path: "reading.useSystemFonts", label: "settings.useSystemFonts" },
           { kind: "toggle", path: "reading.enableXfa", label: "settings.enableXfa", desc: "settings.enableXfa.desc" },
+          { kind: "toggle", path: "reading.ocrSuggest", label: "settings.ocrSuggest", desc: "settings.ocrSuggest.desc" },
         ],
       },
     ],

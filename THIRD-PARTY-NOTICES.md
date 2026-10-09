@@ -19,13 +19,17 @@ respective packages (`node_modules/<package>/LICENSE`, `~/.cargo/registry/src/*/
 | [Tauri](https://tauri.app/) and its plugins (dialog, opener, log, single-instance, window-state) | Application shell | MIT OR Apache-2.0 |
 | [lopdf](https://github.com/J-F-Liu/lopdf) | Reading and writing PDF objects | MIT |
 | [arboard](https://github.com/1Password/arboard) | Writing snapshot images to the clipboard | MIT OR Apache-2.0 |
+| [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) PP-OCRv6 tiny models | Text recognition models (`src-tauri/ocr/`) | Apache-2.0 |
+| [ONNX Runtime](https://github.com/microsoft/onnxruntime) | Running the OCR models (static on Windows, `libonnxruntime.so` in the Linux packages) | MIT |
+| [oar-ocr](https://github.com/GreatV/oar-ocr), [ort](https://github.com/pykeio/ort) | OCR pipeline and ONNX Runtime bindings | Apache-2.0; MIT OR Apache-2.0 |
 | [serde](https://serde.rs/), serde_json, chrono, log and other Rust crates | Serialisation, dates, logging, … | MIT and/or Apache-2.0 |
 
 ## Licence summary of all Rust dependencies
 
 All crates in `Cargo.lock` use permissive or weak-copyleft licences: MIT, Apache-2.0 (some with
 the LLVM exception), BSD-2-Clause, BSD-3-Clause, ISC, Zlib, BSL-1.0, Unlicense, 0BSD, CC0-1.0,
-Unicode-3.0 and MPL-2.0. The MPL-2.0 crates (`cssparser`, `selectors`, `dtoa-short`,
+Unicode-3.0, MPL-2.0 and CDLA-Permissive-2.0 (`webpki-root-certs`, certificate data used
+when downloading ONNX Runtime at build time). The MPL-2.0 crates (`cssparser`, `selectors`, `dtoa-short`,
 `option-ext`) are used unmodified; their source code is available from crates.io.
 
 To regenerate a full list:

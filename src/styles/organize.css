@@ -326,3 +326,16 @@
 @media (max-width: 640px) {
   .password-fields, .permission-grid { grid-template-columns: 1fr; margin-left: 0; }
 }
+
+/* OCR */
+textarea.input.ocr-text {
+  width: 100%;
+  height: auto;
+  min-height: 220px;
+  max-height: 50vh;
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.6;
+  font-family: var(--font-ui, system-ui);
+  white-space: pre-wrap;
+}

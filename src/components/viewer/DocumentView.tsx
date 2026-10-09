@@ -312,9 +312,10 @@ export function DocumentView({ c, active }: { c: DocumentController; active: boo
 /** Guide shown while the one-shot snapshot mode is active. */
 function SnapshotGuide({ c }: { c: DocumentController }) {
   const t = useT();
+  const purpose = useDocState(c, (s) => s.snapshotPurpose, "copy");
   return (
     <div className="snapshot-guide" role="status">
-      <span>{t("snapshot.guide")}</span>
+      <span>{t(purpose === "ocr" ? "ocr.guide" : "snapshot.guide")}</span>
       <button type="button" onClick={() => c.endSnapshot()}>
         {t("common.cancel")}
         <kbd>Esc</kbd>

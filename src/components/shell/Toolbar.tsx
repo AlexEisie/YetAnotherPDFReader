@@ -264,6 +264,7 @@ export function Toolbar() {
           </MenuButton>
           <CmdButton id="view.readMode" />
           <CmdButton id="tool.snapshot" />
+          <CmdButton id="tool.ocrRegion" />
           <button
             type="button"
             className="icon-btn"

@@ -13,7 +13,7 @@ use crate::dto::PageOp;
 use crate::error::{PdfError, Result};
 use crate::load::{load_document, Revision, Streams};
 use crate::objects::{num_array, ObjectSource};
-use crate::{page_tools, watermark};
+use crate::{page_tools, text_layer, watermark};
 use crate::pages::{
     collect_pages, inherited, normalize_rotation, page_rotation, root_pages_id, PageRef,
     DEFAULT_MEDIA_BOX, INHERITABLE,
@@ -86,8 +86,11 @@ pub fn apply(rev: &mut Revision, ops: &[PageOp], blobs: &[&[u8]]) -> Result<bool
                 pages: selected,
                 watermark,
             } => watermark::apply_watermark(rev, &pages, selected, watermark, blobs)?,
+            PageOp::TextLayer { pages: layers, cjk_hint } => {
+                text_layer::apply_text_layer(rev, &pages, layers, cjk_hint.as_deref())?
+            }
         }
-        structural |= !matches!(op, PageOp::Rotate { .. } | PageOp::Flip { .. } | PageOp::Watermark { .. });
+        structural |= !matches!(op, PageOp::Rotate { .. } | PageOp::Flip { .. } | PageOp::Watermark { .. } | PageOp::TextLayer { .. });
     }
     if structural {
         rebuild_tree(rev, root, &pages)?;

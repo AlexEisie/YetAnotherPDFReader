@@ -86,6 +86,8 @@ import {
   Droplets,
   Lock,
   LockOpen,
+  TextSelect,
+  FileScan,
 } from "lucide-react";
 import type { MessageKey } from "../i18n";
 import { t } from "../i18n";
@@ -691,9 +693,9 @@ export const COMMANDS: CommandDef[] = [
     icon: Camera,
     keys: ["Ctrl+Alt+S"],
     needsDoc: true,
-    run: (c) => (c?.state.tool === "snapshot" ? c.endSnapshot() : c?.startSnapshot()),
+    run: (c) => (c?.state.tool === "snapshot" && c.state.snapshotPurpose === "copy" ? c.endSnapshot() : c?.startSnapshot("copy")),
     enabled: ready,
-    checked: (c) => c?.state.tool === "snapshot",
+    checked: (c) => c?.state.tool === "snapshot" && c.state.snapshotPurpose === "copy",
   },
 
   // Comments -----------------------------------------------------------------------------------
@@ -789,6 +791,17 @@ export const COMMANDS: CommandDef[] = [
   },
   { id: "page.split", label: "cmd.page.split", icon: Scissors, needsDoc: true, run: (c) => c && openDialog("splitDocument", { tabId: c.tabId }), enabled: ready },
   { id: "doc.watermark", label: "cmd.doc.watermark", icon: Droplets, needsDoc: true, run: (c) => c && openDialog("watermark", { tabId: c.tabId }), enabled: canAssemble },
+  {
+    id: "tool.ocrRegion",
+    label: "cmd.tool.ocrRegion",
+    icon: TextSelect,
+    keys: ["Ctrl+Alt+T"],
+    needsDoc: true,
+    run: (c) => (c?.state.tool === "snapshot" && c.state.snapshotPurpose === "ocr" ? c.endSnapshot() : c?.startSnapshot("ocr")),
+    enabled: ready,
+    checked: (c) => c?.state.tool === "snapshot" && c.state.snapshotPurpose === "ocr",
+  },
+  { id: "doc.ocr", label: "cmd.doc.ocr", icon: FileScan, needsDoc: true, run: (c) => c && openDialog("ocrDocument", { tabId: c.tabId }), enabled: canAssemble },
   { id: "doc.security", label: "cmd.doc.security", icon: Lock, needsDoc: true, run: (c) => c && openDialog("security", { tabId: c.tabId }), enabled: ready },
   { id: "doc.removeSecurity", label: "cmd.doc.removeSecurity", icon: LockOpen, needsDoc: true, run: (c) => c && removeProtection(c), enabled: ready },
   {

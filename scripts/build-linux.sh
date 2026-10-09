@@ -23,8 +23,20 @@ if [[ "$repo" == /mnt/* ]]; then
   mkdir -p "$work"
   rsync -a --delete \
     --exclude node_modules --exclude target --exclude dist --exclude .git \
-    --exclude 'public/pdfjs' --exclude 'src-tauri/gen' \
+    --exclude 'public/pdfjs' --exclude 'src-tauri/gen' --exclude 'src-tauri/ocr/linux' \
     "$repo/" "$work/"
+fi
+
+# ONNX Runtime (OCR) is loaded at run time on Linux; ship Microsoft's official build, which
+# runs on glibc 2.28+.
+ort_version="1.22.0"
+ort_dir="$work/src-tauri/ocr/linux"
+if [[ ! -f "$ort_dir/libonnxruntime.so" ]]; then
+  mkdir -p "$ort_dir"
+  tmp="$(mktemp -d)"
+  curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v${ort_version}/onnxruntime-linux-x64-${ort_version}.tgz" | tar -xz -C "$tmp"
+  cp -L "$tmp/onnxruntime-linux-x64-${ort_version}/lib/libonnxruntime.so" "$ort_dir/libonnxruntime.so"
+  rm -rf "$tmp"
 fi
 
 export PATH="$HOME/.cargo/bin:$PATH"

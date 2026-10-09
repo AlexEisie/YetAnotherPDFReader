@@ -162,6 +162,17 @@ async function handle(cmd: string, args: any): Promise<unknown> {
       const target = (meta as { target: string }).target;
       return { path: target, size: 0, modifiedMs: Date.now(), backupPath: null };
     }
+    case "ocr_recognize": {
+      const { meta } = parseFrame(args);
+      const { width, height } = meta as { width: number; height: number };
+      // Browser mode has no OCR engine: return a plausible two-line result.
+      const line = (text: string, y0: number, y1: number) => ({
+        text,
+        confidence: 0.98,
+        points: [[width * 0.05, height * y0], [width * 0.95, height * y0], [width * 0.95, height * y1], [width * 0.05, height * y1]],
+      });
+      return [line("城市夜空观测手册", 0.1, 0.35), line("Urban night skies (mock OCR)", 0.55, 0.8)];
+    }
     case "pdf_security_info":
       return {
         encrypted: false,
@@ -206,7 +217,7 @@ async function handle(cmd: string, args: any): Promise<unknown> {
       localStorage.removeItem(store(args.name));
       return null;
     case "app_ready":
-      return { version: "0.2.0-dev", platform: "browser", arch: "x86_64", debug: true, dataDir: "(localStorage)", logDir: "(console)", userName: "Tester", launchFiles: [] };
+      return { version: "0.3.0-dev", platform: "browser", arch: "x86_64", debug: true, dataDir: "(localStorage)", logDir: "(console)", userName: "Tester", launchFiles: [] };
     case "app_take_pending_files":
       return [];
     case "app_log":

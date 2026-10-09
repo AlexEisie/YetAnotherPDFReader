@@ -10,6 +10,7 @@ mod commands;
 mod error;
 mod frame;
 mod fsutil;
+mod ocr;
 mod portable;
 mod session;
 mod store;
@@ -237,6 +238,7 @@ pub fn run() {
             commands::pdf_extract,
             commands::pdf_security_info,
             commands::pdf_security,
+            ocr::ocr_recognize,
             commands::pdf_read_annotations,
             commands::pdf_fonts,
             commands::pdf_page_count,

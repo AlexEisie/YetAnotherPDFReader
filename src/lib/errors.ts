@@ -20,6 +20,7 @@ export type ErrorCode =
   | "UNKNOWN_SESSION"
   | "PASSWORD"
   | "OWNER_PASSWORD"
+  | "OCR"
   | "PDF_ERROR"
   | "INVALID_PDF"
   | "UNSUPPORTED"
@@ -63,6 +64,7 @@ const KNOWN_CODES = new Set<string>([
   "UNKNOWN_SESSION",
   "PASSWORD",
   "OWNER_PASSWORD",
+  "OCR",
   "PDF_ERROR",
   "INVALID_PDF",
   "UNSUPPORTED",

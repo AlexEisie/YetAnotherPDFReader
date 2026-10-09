@@ -136,7 +136,22 @@ export type PageOp =
   | { op: "insertImages"; at: number; images: PageImage[]; pageSize?: [number, number] | null; margin?: number }
   | { op: "flip"; pages: number[]; horizontal: boolean }
   | { op: "duplicate"; pages: number[]; at: number }
-  | { op: "watermark"; pages: number[]; watermark: WatermarkSpec };
+  | { op: "watermark"; pages: number[]; watermark: WatermarkSpec }
+  | { op: "textLayer"; pages: TextLayerPage[]; cjkHint?: string | null };
+
+/** Recognised (OCR) text of a page, written as an invisible text layer. */
+export interface TextLayerPage {
+  /** 0-based page index. */
+  page: number;
+  lines: { text: string; quad: [number, number, number, number, number, number, number, number] }[];
+}
+
+/** One line recognised by the OCR engine (corners in image pixels: TL, TR, BR, BL). */
+export interface OcrLine {
+  text: string;
+  confidence: number;
+  points: [[number, number], [number, number], [number, number], [number, number]];
+}
 
 /** A picture in a request blob: a JPEG file as is, or RGBA8 pixels (top row first). */
 export interface PageImage {

@@ -4,6 +4,7 @@ import { ConfirmDialog, ErrorDialog, GoToPageDialog, LinkDialog, PasswordDialog,
 import { DocPropsDialog } from "./DocPropsDialog";
 import { ExportImageDialog, PageOpsDialog, PrintDialog } from "./DocumentDialogs";
 import { SignatureDialog, StampEditorDialog } from "./SignatureDialog";
+import { OcrDocumentDialog, OcrResultDialog } from "./OcrDialogs";
 import { InsertFilesDialog, ReplacePagesDialog, SecurityDialog, SplitDialog, WatermarkDialog } from "./PageEditDialogs";
 
 function render(entry: DialogEntry) {
@@ -51,6 +52,14 @@ function render(entry: DialogEntry) {
     }
     case "security":
       return <SecurityDialog tabId={(entry.props as DialogMap["security"]["props"]).tabId} done={() => done(undefined)} />;
+    case "ocrResult": {
+      const p = entry.props as DialogMap["ocrResult"]["props"];
+      return <OcrResultDialog text={p.text} confidence={p.confidence} done={() => done(undefined)} />;
+    }
+    case "ocrDocument": {
+      const p = entry.props as DialogMap["ocrDocument"]["props"];
+      return <OcrDocumentDialog tabId={p.tabId} pages={p.pages} done={() => done(undefined)} />;
+    }
     case "signature":
       return <SignatureDialog initials={(entry.props as DialogMap["signature"]["props"]).initials} done={() => done(undefined)} />;
     case "stampEditor":

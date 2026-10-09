@@ -83,9 +83,18 @@ function applyPageColors(source: HTMLCanvasElement): HTMLCanvasElement {
   return out;
 }
 
-async function renderRegion(c: DocumentController, pdf: PDFDocumentProxy, pageIndex: number, rect: Rect): Promise<HTMLCanvasElement | null> {
+/** Rendering overrides (OCR renders at its own resolution, without comments or page colours). */
+export interface RegionOptions {
+  /** Output pixels per PDF unit. */
+  scale?: number;
+  annotations?: boolean;
+  pageColors?: boolean;
+}
+
+/** Render `rect` (PDF user space) of a page to a canvas, or null when the region is empty. */
+export async function renderRegion(c: DocumentController, pdf: PDFDocumentProxy, pageIndex: number, rect: Rect, options: RegionOptions = {}): Promise<HTMLCanvasElement | null> {
   const s = settings();
-  const withComments = s.snapshot.annotations && s.annotations.showAnnotations;
+  const withComments = (options.annotations ?? s.snapshot.annotations) && s.annotations.showAnnotations;
   let temp: PDFDocumentProxy | null = null;
   try {
     let source = pdf;
@@ -97,7 +106,7 @@ async function renderRegion(c: DocumentController, pdf: PDFDocumentProxy, pageIn
     const page = await source.getPage(pageIndex + 1);
     const region = clampToPage(rect, page.view);
     if (!region) return null;
-    const size = snapshotSize(region, snapshotScale(c, pageIndex + 1));
+    const size = snapshotSize(region, options.scale ?? snapshotScale(c, pageIndex + 1));
     const viewport = page.getViewport({ scale: size.scale, rotation: (page.rotate + c.state.rotation) % 360 });
     const [ax, ay] = viewport.convertToViewportPoint(region[0], region[1]);
     const [bx, by] = viewport.convertToViewportPoint(region[2], region[3]);
@@ -112,7 +121,7 @@ async function renderRegion(c: DocumentController, pdf: PDFDocumentProxy, pageIn
       annotationMode: withComments ? pdfjs.AnnotationMode.ENABLE_STORAGE : pdfjs.AnnotationMode.DISABLE,
     }).promise;
     page.cleanup();
-    return s.snapshot.pageColors ? applyPageColors(canvas) : canvas;
+    return (options.pageColors ?? s.snapshot.pageColors) ? applyPageColors(canvas) : canvas;
   } finally {
     await temp?.loadingTask.destroy().catch(() => undefined);
   }

@@ -35,6 +35,7 @@ mod pages;
 pub mod refs;
 mod security;
 pub mod text;
+mod text_layer;
 mod watermark;
 
 pub use dto::*;

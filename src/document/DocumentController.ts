@@ -25,7 +25,7 @@ import { createLogger } from "../lib/log";
 import { t, currentLocale, cjkHintForLocale } from "../i18n";
 import { settings, onSettingsChange } from "../settings/store";
 import type { Settings, LayoutSetting } from "../settings/defaults";
-import { openDialog, toast, useUi } from "../state/ui";
+import { openDialog, setBusy, toast, useUi } from "../state/ui";
 import { useLibrary, writeRecovery, removeRecovery, readRecovery, type ViewStateEntry } from "../state/library";
 import { History, invertChanges, type BaseState, type Change, type HistoryState } from "../annotations/history";
 import {
@@ -48,6 +48,7 @@ import { PageLayerManager } from "./pageLayers";
 import { HiddenAnnotations } from "./renderPatch";
 import { applyPageColorStyle, pageColorStyle } from "./pageColors";
 import { captureRegion } from "./snapshot";
+import { looksScanned, recognizeRegion } from "./ocr";
 import { layoutToModes, modesToLayout, nextZoomLevel, zoomSettingToScaleValue, MAX_SCALE, MIN_SCALE, ScrollMode } from "./layout";
 import { selectionToQuads, quadsBounds } from "./textSelection";
 import { ThumbnailService, renderCoverDataUrl } from "./thumbnails";
@@ -139,6 +140,8 @@ export interface DocState {
   docVersion: number;
   /** The page organizer covers the viewer. */
   organizing: boolean;
+  /** What the snapshot tool does with the dragged region. */
+  snapshotPurpose: "copy" | "ocr";
 }
 
 const ALL_ALLOWED: Permissions = { print: true, copy: true, modify: true, annotate: true, fillForms: true, assemble: true };
@@ -192,6 +195,7 @@ function initialState(path: string): DocState {
     layoutVersion: 0,
     docVersion: 0,
     organizing: false,
+    snapshotPurpose: "copy",
   };
 }
 
@@ -444,6 +448,25 @@ export class DocumentController {
     await this.loadFileAnnotations();
     await this.checkRecovery();
     this.startRecoveryTimer();
+    void this.suggestOcr();
+  }
+
+  /** Toast suggesting OCR for a scanned document (dismissed once recognition starts). */
+  ocrSuggestion: number | null = null;
+
+  /** Offer text recognition once when the document looks scanned (no text on its first pages). */
+  private async suggestOcr(): Promise<void> {
+    if (!settings().reading.ocrSuggest || this.destroyed) return;
+    try {
+      if (!(await looksScanned(this)) || this.destroyed) return;
+      this.ocrSuggestion = toast("info", t("ocr.suggest"), {
+        detail: t("ocr.suggestDetail"),
+        action: { label: t("ocr.suggestAction"), run: () => void openDialog("ocrDocument", { tabId: this.tabId }) },
+        timeout: 15000,
+      });
+    } catch {
+      // Only a suggestion.
+    }
   }
 
   /** Read the annotations stored in the file into the model (in the background). */
@@ -1155,7 +1178,8 @@ export class DocumentController {
   }
 
   /** Enter the one-shot snapshot mode, remembering the tool to return to. */
-  startSnapshot(): void {
+  startSnapshot(purpose: "copy" | "ocr" = "copy"): void {
+    this.set({ snapshotPurpose: purpose });
     if (this.state.tool === "snapshot") return;
     this.beforeSnapshot = { tool: this.state.tool, payload: this.state.payload };
     this.setTool("snapshot");
@@ -1773,6 +1797,25 @@ export class DocumentController {
   // --------------------------------------------------------------------------------------------
   // Misc
   // --------------------------------------------------------------------------------------------
+
+  /** Recognise the text of a page region (PDF user space) and show it to copy. */
+  async recognizeRegionText(pageIndex: number, rect: [number, number, number, number]): Promise<void> {
+    setBusy(t("ocr.working"));
+    try {
+      const result = await recognizeRegion(this, pageIndex, rect);
+      setBusy(null);
+      if (!result.lines) {
+        toast("info", t("ocr.nothing"));
+        return;
+      }
+      void openDialog("ocrResult", { text: result.text, confidence: result.confidence });
+    } catch (err) {
+      setBusy(null);
+      const e = toAppError(err);
+      log.error("region OCR failed", e.message);
+      toast("error", t("ocr.failed"), { detail: e.message });
+    }
+  }
 
   /** Snapshot tool: copy a page region (PDF user space) to the clipboard as an image. */
   copyRegionImage(pageIndex: number, rect: [number, number, number, number]): Promise<void> {

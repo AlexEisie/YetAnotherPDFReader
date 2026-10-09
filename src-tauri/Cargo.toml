@@ -30,6 +30,18 @@ log.workspace = true
 chrono.workspace = true
 parking_lot = "0.12"
 arboard = { version = "3", default-features = false, features = ["image-data"] }
+# OCR: PaddleOCR models through ONNX Runtime.
+oar-ocr = { version = "0.10", default-features = false, features = ["simd"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
 
 [dev-dependencies]
 tempfile = "3"
+
+# ONNX Runtime is linked statically where the prebuilt libraries fit the platform, and loaded
+# at run time on Linux (the prebuilt static library needs glibc 2.38+; the official shared
+# library runs on glibc 2.28+ and is shipped inside the Linux packages).
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+ort = { version = "=2.0.0-rc.13", default-features = false, features = ["download-binaries", "tls-native", "std", "ndarray", "tracing"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ort = { version = "=2.0.0-rc.13", default-features = false, features = ["load-dynamic", "std", "ndarray", "tracing"] }

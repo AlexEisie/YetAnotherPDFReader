@@ -1,0 +1,10 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "linux": {
+      "deb": { "files": { "/usr/lib/yapr/libonnxruntime.so": "ocr/linux/libonnxruntime.so" } },
+      "rpm": { "files": { "/usr/lib/yapr/libonnxruntime.so": "ocr/linux/libonnxruntime.so" } },
+      "appimage": { "files": { "/usr/lib/yapr/libonnxruntime.so": "ocr/linux/libonnxruntime.so" } }
+    }
+  }
+}

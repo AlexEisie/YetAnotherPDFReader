@@ -402,12 +402,39 @@ pub enum PageOp {
     /// Copy pages (with their comments) and insert the copies, in order, before index `at`.
     #[serde(rename_all = "camelCase")]
     Duplicate { pages: Vec<u32>, at: u32 },
+    /// Add invisible, searchable text (OCR results) over the content of pages.
+    #[serde(rename_all = "camelCase")]
+    TextLayer {
+        pages: Vec<TextLayerPage>,
+        /// Language hint for CJK text (`zh-CN`, `ja`, ...).
+        #[serde(default)]
+        cjk_hint: Option<String>,
+    },
     /// Stamp a text or picture watermark into the content of `pages`.
     #[serde(rename_all = "camelCase")]
     Watermark {
         pages: Vec<u32>,
         watermark: WatermarkSpec,
     },
+}
+
+/// Recognised text of one page.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TextLayerPage {
+    /// 0-based page index.
+    pub page: u32,
+    pub lines: Vec<TextLayerLine>,
+}
+
+/// One line of text and where it is on the page.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TextLayerLine {
+    pub text: String,
+    /// Corners in default user space, as read: top-left, top-right, bottom-right, bottom-left
+    /// (`[x0, y0, x1, y1, x2, y2, x3, y3]`).
+    pub quad: [f64; 8],
 }
 
 /// Encoding of a picture blob.

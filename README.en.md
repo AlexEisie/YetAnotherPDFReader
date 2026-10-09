@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>A fast, lightweight, open-source PDF reader for the desktop</b><br>
-  Tabs · comments &amp; signatures · page organizer &amp; merging · watermarks &amp; passwords · night reading · region snapshots — in a ~5 MB installer that works fully offline, no account needed.
+  Tabs · comments &amp; signatures · page organizer &amp; merging · watermarks &amp; passwords · offline OCR · night reading · region snapshots — in a ~15 MB installer that works fully offline, no account needed.
 </p>
 
 <div align="center">
@@ -44,7 +44,7 @@
 ## 📥 Download
 
 > [!TIP]
-> **New in v0.2.0**: page organizer (`Ctrl+Shift+O`), combining PDFs and pictures, flipping and splitting, watermarks and AES-256 password protection. See the [changelog](CHANGELOG.md#english).
+> **New in v0.3.0**: offline text recognition (OCR) — recognise a region (`Ctrl+Alt+T`) or make whole scans searchable and copyable. v0.2.0 added the page organizer, merging and splitting, watermarks, password protection and Linux builds. See the [changelog](CHANGELOG.md#english).
 
 Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest):
 
@@ -68,11 +68,12 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 
 | | Highlight | Details |
 | :-: | --- | --- |
-| 🪶 | **Really lightweight** | ~5 MB installer, quick start-up, small memory footprint. Files above a configurable size are read from disk in 1 MB ranges, so even documents of several hundred MB open instantly |
+| 🪶 | **Really lightweight** | ~15 MB installer (about 10 MB of it is the offline OCR engine), quick start-up, small memory footprint. Files above a configurable size are read from disk in 1 MB ranges, so even documents of several hundred MB open instantly |
 | 🔒 | **Offline and private** | No account, no ads, no telemetry — there is no networking code at all. Web links in documents ask before opening by default |
 | 🛡️ | **Safe saving** | Changes are written as an *incremental update*: the original bytes are kept intact, so **existing digital signatures stay valid**. Files are written to a temporary file and atomically swapped in, with an optional `.bak` copy; unsaved comments can be recovered after a crash |
 | ✍️ | **Full commenting, free** | Highlights, sticky notes, shapes, stamps, signatures and text boxes — and **comments already in the file can be edited too** |
 | 🗂️ | **Page organizer, free** | Select, drag to reorder, rotate, flip, duplicate, replace and delete in a large thumbnail grid; **combine several PDFs and pictures at once**, or drop them from Explorer straight between pages; split documents by page count or ranges; text or picture watermarks. Every step can be undone |
+| 🔎 | **Offline OCR** | PaddleOCR PP-OCRv6 recognises Chinese and English accurately and fast (~0.2 s per page), entirely on your computer. Recognise a region and copy its text, or make a whole scan searchable and selectable without changing how it looks |
 | 🔐 | **Password protection** | AES-256 encryption with an open password and / or restricted printing, copying and editing; removing protection takes one step |
 | 🌙 | **Comfortable night reading** | Dark (inverted), **night (dark pages, images keep their natural colours)**, sepia, eye-care green and custom colours; can follow the system dark theme, and sidebar thumbnails are dimmed to match |
 | 📸 | **Sharp region snapshots** | Drag over any part of a page: it is re-rendered from the PDF (up to 600 DPI) and copied straight to the clipboard — not a blurry screen grab. Snapshot mode ends after each capture |
@@ -104,6 +105,10 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
   <tr>
     <td width="50%"><img src="docs/images/en/security.png" alt="Password protection"><br><sub>Password protection: open password, permissions and a strength meter</sub></td>
     <td width="50%"><img src="docs/images/en/palette.png" alt="Command palette"><br><sub>Command palette: find and run any command</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/ocr-region.png" alt="Recognize text in a region"><br><sub>Recognize text in a region of a scanned page, then edit and copy it (Chinese UI)</sub></td>
+    <td width="50%"><img src="docs/images/ocr-search.png" alt="Searchable scan"><br><sub>After OCR, scans can be searched — highlights line up with the picture (Chinese UI)</sub></td>
   </tr>
 </table>
 
@@ -156,6 +161,7 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 | **Duplicate, replace, delete, extract** | Duplicate pages (with comments), replace pages by other PDFs or pictures, delete, extract to a new file |
 | **Split documents** | Every N pages, into N files or custom ranges, with a preview of the file names and a choice of folder |
 | **Watermarks** | Text (CJK, several lines, bold, colour) or picture; opacity, angle, nine positions or tiled, above or behind the content; live preview and remembered settings |
+| **Text recognition (OCR)** | *Recognize Text in Region* (`Ctrl+Alt+T`): drag over text, then check, edit and copy the result. *Recognize Text (OCR)…*: add an invisible text layer to the whole document or chosen pages so scans can be searched, selected and copied; pages with text are skipped by default, with progress and cancel. Scanned documents are detected on opening. Research and benchmark: [docs/ocr.md](docs/ocr.md#english) |
 | **Password protection** | AES-256; open password and permissions password (printing, copying, comments, editing); strength meter; unlock restrictions for the session with the permissions password; remove protection in one step |
 
 ### Quality of life
@@ -176,7 +182,7 @@ A rough comparison with the **free editions** of popular Windows PDF readers, co
 | | **YAPR** | Adobe Acrobat Reader | Foxit PDF Reader | SumatraPDF |
 | --- | :-: | :-: | :-: | :-: |
 | Open source | ✅ MIT | ❌ | ❌ | ✅ GPLv3 |
-| Installer size | **~5 MB** | hundreds of MB | ~100 MB | ~10 MB |
+| Installer size | **~15 MB** | hundreds of MB | ~100 MB | ~10 MB |
 | No account, promotions or telemetry | ✅ | ❌ | ❌ | ✅ |
 | Tabs | ✅ | ✅ | ✅ | ✅ |
 | Full commenting (shapes, stamps, signatures) | ✅ | ✅ | ✅ | basic |
@@ -184,6 +190,7 @@ A rough comparison with the **free editions** of popular Windows PDF readers, co
 | Page organisation (insert, delete, reorder, extract) | ✅ free | paid edition | depends on edition | ❌ |
 | Combine PDFs and pictures, split documents | ✅ free | paid edition | depends on edition | ❌ |
 | Watermarks, add / remove passwords | ✅ free | paid edition | depends on edition | ❌ |
+| Text recognition (OCR), searchable scans | ✅ free, offline | paid edition | paid edition | ❌ |
 | Copy a page region to the clipboard | ✅ choose DPI | ✅ | ✅ | ✅ |
 | Command palette | ✅ | ❌ | ❌ | ✅ |
 | Portable version | ✅ | ❌ | ❌ | ✅ |
@@ -205,6 +212,7 @@ A rough comparison with the **free editions** of popular Windows PDF readers, co
 | Region snapshot | `Ctrl+Alt+S` | Cycle page colours | `Ctrl+Alt+N` |
 | Comment toolbar | `C` | Select / Hand tool | `V` / `H` |
 | Page organizer | `Ctrl+Shift+O` | Delete current page | `Ctrl+Shift+D` |
+| Recognize text in region (OCR) | `Ctrl+Alt+T` | | |
 | Read mode | `Ctrl+H` | Presentation | `F5` / `Ctrl+L` |
 | Full screen | `F11` | Document properties | `Ctrl+D` |
 | Settings | `Ctrl+,` | Shortcut list | `Ctrl+/` |
@@ -332,6 +340,7 @@ cargo clippy --all-targets       # lints
 node scripts/e2e-tauri.mjs       # end-to-end: drives the real app, verifies the written PDF and the clipboard
 npm run test:ui                  # UI smoke test with screenshots
 npm run test:editing             # end-to-end: organizer, combining pictures and PDFs, watermarks, encryption
+npm run test:ocr                 # end-to-end: scan suggestion, region and document OCR, find and save
 npm run test:release             # release build smoke test
 ```
 
@@ -345,7 +354,8 @@ npm run test:release             # release build smoke test
 - [x] Linux builds (deb, rpm, AppImage)
 - [ ] macOS builds
 - [x] Page organizer, merging and splitting, watermarks, password protection
-- [ ] Multi-page snapshots, OCR, editing page content
+- [x] Offline text recognition (OCR)
+- [ ] Multi-page snapshots, editing page content
 
 Ideas and bug reports are welcome in [Issues](https://github.com/AlexEisie/YetAnotherPDFReader/issues).
 
@@ -360,6 +370,7 @@ Issues and pull requests are welcome. Before submitting code, please make sure `
 ## 🙏 Acknowledgements
 
 - [pdf.js](https://github.com/mozilla/pdf.js) — PDF rendering
+- [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR), [ONNX Runtime](https://onnxruntime.ai/), [oar-ocr](https://github.com/GreatV/oar-ocr) — offline text recognition
 - [Tauri](https://tauri.app/) — lightweight desktop framework
 - [lopdf](https://github.com/J-F-Liu/lopdf) — PDF reading and writing in Rust
 - [React](https://react.dev/), [Zustand](https://github.com/pmndrs/zustand), [Lucide](https://lucide.dev/), [arboard](https://github.com/1Password/arboard)

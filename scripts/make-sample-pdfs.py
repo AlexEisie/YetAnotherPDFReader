@@ -154,9 +154,38 @@ def make_encrypted():
     )
 
 
+def make_scanned():
+    """Image-only pages (like a scanner produces): rendered from sample.pdf, slightly rotated,
+    blurred and noisy, without any text layer. Used to test OCR."""
+    import io
+    import random
+
+    from PIL import Image, ImageFilter
+
+    random.seed(5)
+    src = fitz.open(os.path.join(OUT, "sample.pdf"))
+    doc = fitz.open()
+    for index in (0, 3):
+        page = src[index]
+        pix = page.get_pixmap(dpi=150)
+        img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples).convert("L")
+        img = img.rotate(0.6, resample=Image.BICUBIC, fillcolor=255).filter(ImageFilter.GaussianBlur(0.6))
+        px = img.load()
+        for _ in range(img.width * img.height // 80):
+            x, y = random.randrange(img.width), random.randrange(img.height)
+            px[x, y] = max(0, min(255, px[x, y] + random.randint(-60, 60)))
+        buf = io.BytesIO()
+        img.save(buf, "JPEG", quality=60)
+        out = doc.new_page(width=page.rect.width, height=page.rect.height)
+        out.insert_image(out.rect, stream=buf.getvalue())
+    doc.set_metadata({"title": "Scanned sample", "creator": "make-sample-pdfs.py"})
+    doc.save(os.path.join(OUT, "scanned.pdf"), garbage=3, deflate=True)
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     make_main()
     make_large(int(sys.argv[1]) if len(sys.argv) > 1 else 300)
     make_encrypted()
+    make_scanned()
     print("samples written to", os.path.abspath(OUT))

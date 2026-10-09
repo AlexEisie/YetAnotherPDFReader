@@ -375,3 +375,21 @@ describe("page editing plans", async () => {
     expect(tiles.length).toBeGreaterThan(6);
   });
 });
+
+describe("OCR text assembly", async () => {
+  const { linesToText } = await import("../document/ocr");
+  const line = (text: string, x: number, y: number, w = 100, h = 20) => ({
+    text,
+    confidence: 0.99,
+    points: [[x, y], [x + w, y], [x + w, y + h], [x, y + h]] as [[number, number], [number, number], [number, number], [number, number]],
+  });
+  it("joins boxes of a row and keeps rows in order", () => {
+    expect(linesToText([line("world", 120, 2), line("Hello", 0, 0), line("Next line", 0, 40)])).toBe("Hello world\nNext line");
+  });
+  it("does not insert spaces between CJK boxes", () => {
+    expect(linesToText([line("城市夜空", 0, 0), line("观测手册", 110, 1), line("Page 1", 0, 30)])).toBe("城市夜空观测手册\nPage 1");
+  });
+  it("handles an empty result", () => {
+    expect(linesToText([])).toBe("");
+  });
+});

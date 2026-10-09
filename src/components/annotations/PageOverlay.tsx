@@ -574,8 +574,9 @@ function PageOverlayImpl({ c, pageNumber, layers }: OverlayProps) {
           if (d.tool === "snapshot") {
             // One-shot: leave snapshot mode as soon as a region was chosen.
             if (rect) {
+              const purpose = c.state.snapshotPurpose;
               c.endSnapshot();
-              void c.copyRegionImage(pageIndex, rect);
+              void (purpose === "ocr" ? c.recognizeRegionText(pageIndex, rect) : c.copyRegionImage(pageIndex, rect));
             }
             break;
           }
