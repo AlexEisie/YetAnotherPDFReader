@@ -144,7 +144,7 @@ for (lang of langs) {
   const zh = lang.startsWith("zh");
   out = resolve("docs/images", zh ? "zh" : "en");
   mkdirSync(out, { recursive: true });
-  const base = { general: { language: lang }, appearance: { theme: "dark", showMenuBar: true } };
+  const base = { general: { language: lang }, appearance: { theme: "dark", showMenuBar: true }, ui: { lastSeenVersion: "9.9.9" } };
 
   // 1. Hero: dark theme, thumbnails, comments pane, annotations.
   await boot(base);
@@ -286,11 +286,29 @@ for (lang of langs) {
   await shot("security");
   await page.keyboard.press("Escape");
 
+  // User guide (with a document open, so its buttons are enabled).
+  await boot(base);
+  await page.keyboard.press("F1");
+  await page.waitForSelector(".help-view .help-block", { timeout: 5000 });
+  await (await page.$$(".help-view .settings-nav-item"))[3].click();
+  await sleep(500);
+  await shot("help");
+  await page.keyboard.press("Escape");
+
   // 8. Start page with recent documents.
   await boot(base, ["sample.pdf", "demo.pdf"]);
   await page.click(".tabbar .home-btn");
   await sleep(800);
   await shot("start");
+
+  // 9. "What's new" after an update.
+  await cmd(() => {
+    window.yaprDev.setSetting("ui.lastSeenVersion", "0.2.0");
+    window.yaprDebug.showWhatsNewAfterUpdate();
+  });
+  await page.waitForSelector(".whats-new", { timeout: 5000 });
+  await shot("whats-new");
+  await page.keyboard.press("Escape");
 }
 
 // ------------------------------------------------------------------------------- compositions

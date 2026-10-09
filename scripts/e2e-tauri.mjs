@@ -70,6 +70,11 @@ try {
   );
   await page.waitForSelector('.page[data-page-number="1"] canvas');
   await sleep(800);
+  // The first start after a version bump shows "what's new"; close it.
+  if (await page.$(".whats-new")) {
+    await page.keyboard.press("Escape");
+    await sleep(300);
+  }
   const existing = await page.evaluate(() => Object.keys(window.yaprDebug.active().annotations.getState().items).length);
   check(existing >= 6, `Rust read_annotations found the file's comments (${existing})`);
 

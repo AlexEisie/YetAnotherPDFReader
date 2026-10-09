@@ -87,7 +87,9 @@ import {
   Lock,
   LockOpen,
   TextSelect,
+  CircleHelp,
   FileScan,
+  PartyPopper,
 } from "lucide-react";
 import type { MessageKey } from "../i18n";
 import { t } from "../i18n";
@@ -96,6 +98,8 @@ import { useSettings, settings } from "../settings/store";
 import type { PageMode } from "../settings/defaults";
 import { confirm, openDialog, openSettings, useUi, toast } from "../state/ui";
 import { toAppError } from "../lib/errors";
+import { checkForUpdatesNow } from "../state/updater";
+import { showWhatsNew } from "../state/whatsNew";
 import {
   activeController,
   closeAll,
@@ -857,7 +861,10 @@ export const COMMANDS: CommandDef[] = [
   { id: "help.commandPalette", label: "cmd.help.commandPalette", icon: CommandIcon, keys: ["Ctrl+Shift+P", "Ctrl+K"], global: true, run: () => useUi.setState({ palette: true }) },
   { id: "help.logs", label: "cmd.help.logs", run: () => api.appOpenFolder("logs") },
   { id: "help.welcome", label: "cmd.help.welcome", run: () => activateTab(null) },
-  { id: "help.about", label: "cmd.help.about", icon: Info, run: () => useUi.setState({ about: true }) },
+  { id: "help.about", label: "cmd.help.about", icon: Info, run: () => useUi.setState({ help: "about" }) },
+  { id: "help.guide", label: "cmd.help.guide", icon: CircleHelp, keys: ["F1"], global: true, run: () => useUi.setState({ help: "start", settings: null }) },
+  { id: "help.checkUpdates", label: "cmd.help.checkUpdates", icon: RefreshCw, run: () => checkForUpdatesNow() },
+  { id: "help.whatsNew", label: "cmd.help.whatsNew", icon: PartyPopper, run: () => showWhatsNew() },
 ];
 
 let alwaysOnTop = false;

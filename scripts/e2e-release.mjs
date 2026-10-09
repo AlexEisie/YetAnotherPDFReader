@@ -52,6 +52,11 @@ try {
   await page.waitForSelector('.page[data-page-number="1"] canvas', { timeout: 30000 });
   await page.waitForSelector('.page[data-page-number="1"] .textLayer span', { timeout: 30000 });
   check(true, "first page rendered with a text layer");
+  // The first start after a version bump shows "what's new"; close it.
+  if (await page.$(".whats-new")) {
+    await page.keyboard.press("Escape");
+    await sleep(300);
+  }
   await page.keyboard.press("F4");
   await page.waitForSelector(".thumb-frame img", { timeout: 15000 }).then(
     () => check(true, "thumbnails rendered (blob: images allowed by CSP)"),

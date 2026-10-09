@@ -501,6 +501,32 @@ pub struct AppInfo {
     /// Operating-system user name, used as the default comment author.
     pub user_name: String,
     pub launch_files: Vec<String>,
+    /// How the application was installed (chooses the download offered by the update check):
+    /// `portable`, `appimage`, `deb`, `rpm` or `installer`.
+    pub install_kind: String,
+}
+
+/// How this copy of the application was installed.
+fn install_kind() -> String {
+    if crate::portable::root().is_some() {
+        return "portable".into();
+    }
+    if cfg!(target_os = "linux") {
+        if std::env::var_os("APPIMAGE").is_some() {
+            return "appimage".into();
+        }
+        let release = std::fs::read_to_string("/etc/os-release").unwrap_or_default().to_ascii_lowercase();
+        let family = release
+            .lines()
+            .filter(|l| l.starts_with("id=") || l.starts_with("id_like="))
+            .collect::<Vec<_>>()
+            .join(" ");
+        if ["fedora", "rhel", "centos", "suse", "opensuse", "rocky", "alma"].iter().any(|d| family.contains(d)) {
+            return "rpm".into();
+        }
+        return "deb".into();
+    }
+    "installer".into()
 }
 
 /// Called once by the front-end when the UI is mounted: shows the (initially hidden) window and
@@ -522,6 +548,7 @@ pub async fn app_ready(app: AppHandle, window: WebviewWindow, state: State<'_, A
         log_dir,
         user_name: std::env::var("USERNAME").or_else(|_| std::env::var("USER")).unwrap_or_default(),
         launch_files: state.take_pending_files(),
+        install_kind: install_kind(),
     })
 }
 

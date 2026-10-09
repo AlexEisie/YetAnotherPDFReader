@@ -44,7 +44,7 @@
 ## 📥 Download
 
 > [!TIP]
-> **New in v0.3.0**: offline text recognition (OCR) — recognise a region (`Ctrl+Alt+T`) or make whole scans searchable and copyable. v0.2.0 added the page organizer, merging and splitting, watermarks, password protection and Linux builds. See the [changelog](CHANGELOG.md#english).
+> **New in v0.4.0**: an in-app user guide (`F1`), update checks (optionally daily / weekly, off by default), and a short "what's new" after each update. v0.3.0 added offline text recognition (OCR); v0.2.0 added the page organizer, merging and splitting, watermarks, password protection and Linux builds. See the [changelog](CHANGELOG.md#english).
 
 Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest):
 
@@ -69,7 +69,7 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 | | Highlight | Details |
 | :-: | --- | --- |
 | 🪶 | **Really lightweight** | ~15 MB installer (about 10 MB of it is the offline OCR engine), quick start-up, small memory footprint. Files above a configurable size are read from disk in 1 MB ranges, so even documents of several hundred MB open instantly |
-| 🔒 | **Offline and private** | No account, no ads, no telemetry — there is no networking code at all. Web links in documents ask before opening by default |
+| 🔒 | **Offline and private** | No account, no ads, no telemetry. The only network access is the optional update check (GitHub only, off by default). Web links in documents ask before opening by default |
 | 🛡️ | **Safe saving** | Changes are written as an *incremental update*: the original bytes are kept intact, so **existing digital signatures stay valid**. Files are written to a temporary file and atomically swapped in, with an optional `.bak` copy; unsaved comments can be recovered after a crash |
 | ✍️ | **Full commenting, free** | Highlights, sticky notes, shapes, stamps, signatures and text boxes — and **comments already in the file can be edited too** |
 | 🗂️ | **Page organizer, free** | Select, drag to reorder, rotate, flip, duplicate, replace and delete in a large thumbnail grid; **combine several PDFs and pictures at once**, or drop them from Explorer straight between pages; split documents by page count or ranges; text or picture watermarks. Every step can be undone |
@@ -109,6 +109,10 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
   <tr>
     <td width="50%"><img src="docs/images/ocr-region.png" alt="Recognize text in a region"><br><sub>Recognize text in a region of a scanned page, then edit and copy it (Chinese UI)</sub></td>
     <td width="50%"><img src="docs/images/ocr-search.png" alt="Searchable scan"><br><sub>After OCR, scans can be searched — highlights line up with the picture (Chinese UI)</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/en/help.png" alt="User guide"><br><sub>User guide (<code>F1</code>): features by topic, with buttons that open them</sub></td>
+    <td width="50%"><img src="docs/images/en/whats-new.png" alt="What's new"><br><sub>After an update, the first start lists what changed in each new version</sub></td>
   </tr>
 </table>
 
@@ -170,6 +174,9 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 - **9 UI languages**: English, 简体中文, 繁體中文, 日本語, 한국어, Deutsch, Français, Español, Русский
 - Layered settings with search, per-option reset and import / export
 - Fully customisable keyboard shortcuts and a command palette
+- **In-app user guide** (`F1`): features explained by topic, with search, "try it" buttons and the shortcuts currently in effect
+- **Update check**: check from *Help ▸ Check for Updates* or automatically every day / week; picks the right package for how the app was installed, and a version can be skipped
+- **What's new**: the first start after an update lists the main changes since the version you used before
 - File association; single instance (files opened from Explorer go to the running window); drag & drop
 - Notices when an open file is changed or deleted by another program
 
@@ -216,6 +223,7 @@ A rough comparison with the **free editions** of popular Windows PDF readers, co
 | Read mode | `Ctrl+H` | Presentation | `F5` / `Ctrl+L` |
 | Full screen | `F11` | Document properties | `Ctrl+D` |
 | Settings | `Ctrl+,` | Shortcut list | `Ctrl+/` |
+| User guide | `F1` | | |
 
 Every shortcut can be changed in *Settings ▸ Keyboard shortcuts*. Hover a button in the comment toolbar to see its single-key shortcut.
 
@@ -341,6 +349,7 @@ node scripts/e2e-tauri.mjs       # end-to-end: drives the real app, verifies the
 npm run test:ui                  # UI smoke test with screenshots
 npm run test:editing             # end-to-end: organizer, combining pictures and PDFs, watermarks, encryption
 npm run test:ocr                 # end-to-end: scan suggestion, region and document OCR, find and save
+npm run test:help                # end-to-end: user guide and update check (faked new release, skipping, network errors)
 npm run test:release             # release build smoke test
 ```
 
@@ -350,7 +359,7 @@ npm run test:release             # release build smoke test
 
 - [x] First Windows release (installer, MSI, portable)
 - [ ] Code signing
-- [ ] In-app update check
+- [x] In-app user guide and update check
 - [x] Linux builds (deb, rpm, AppImage)
 - [ ] macOS builds
 - [x] Page organizer, merging and splitting, watermarks, password protection

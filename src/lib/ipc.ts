@@ -88,6 +88,8 @@ export interface AppInfo {
   /** Operating-system user name (default comment author). */
   userName: string;
   launchFiles: string[];
+  /** `portable`, `appimage`, `deb`, `rpm` or `installer` (chooses the update download). */
+  installKind: string;
 }
 
 export const api = {

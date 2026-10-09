@@ -76,6 +76,11 @@ try {
   if (!page) throw new Error("app page not found");
   page.on("pageerror", (e) => failures.push(`pageerror: ${e.message}`));
   await page.waitForFunction(() => window.yaprDebug?.active()?.state.status === "ready", { timeout: 30000 });
+  // The first start after a version bump shows "what's new"; close it.
+  if (await page.$(".whats-new")) {
+    await page.keyboard.press("Escape");
+    await sleep(300);
+  }
   check((await fileText(1)).trim() === "", "the scanned sample has no text");
 
   // 1. Scanned documents get a suggestion with a "Recognize text" action.

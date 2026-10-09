@@ -31,6 +31,8 @@ export interface Settings {
     showTabsAlways: boolean;
     newTabPosition: "end" | "afterCurrent";
     links: "ask" | "allow" | "block";
+    /** Automatic update check (the only network access). */
+    updateCheck: "off" | "daily" | "weekly";
   };
   appearance: {
     theme: ThemeSetting;
@@ -161,6 +163,12 @@ export interface Settings {
     organizeSize: number;
     dismissedHints: string[];
     recentStamps: string[];
+    /** Time of the last update check (ms since epoch, 0: never). */
+    lastUpdateCheck: number;
+    /** Version the user chose to skip. */
+    skippedUpdate: string;
+    /** Version whose "what's new" notes were last shown (see `help/releaseNotes.ts`). */
+    lastSeenVersion: string;
   };
 }
 
@@ -206,6 +214,7 @@ export const DEFAULT_SETTINGS: Settings = {
     showTabsAlways: true,
     newTabPosition: "afterCurrent",
     links: "ask",
+    updateCheck: "off",
   },
   appearance: {
     theme: "system",
@@ -331,6 +340,9 @@ export const DEFAULT_SETTINGS: Settings = {
     organizeSize: 168,
     dismissedHints: [],
     recentStamps: [],
+    lastUpdateCheck: 0,
+    skippedUpdate: "",
+    lastSeenVersion: "",
   },
 };
 
@@ -367,6 +379,7 @@ export const ENUMS: Record<string, readonly string[]> = {
   "navigation.wheelAction": ["scroll", "zoom"],
   "navigation.zoomStep": ["fine", "normal", "coarse"],
   "navigation.defaultTool": ["select", "hand"],
+  "general.updateCheck": ["off", "daily", "weekly"],
   "snapshot.resolution": ["screen", "150", "300", "600"],
   "tools.shape.borderStyle": ["solid", "dashed", "cloudy"],
   "tools.line.startEnding": LINE_ENDINGS,

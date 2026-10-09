@@ -4,6 +4,8 @@ import { ConfirmDialog, ErrorDialog, GoToPageDialog, LinkDialog, PasswordDialog,
 import { DocPropsDialog } from "./DocPropsDialog";
 import { ExportImageDialog, PageOpsDialog, PrintDialog } from "./DocumentDialogs";
 import { SignatureDialog, StampEditorDialog } from "./SignatureDialog";
+import { UpdateDialog } from "./UpdateDialog";
+import { WhatsNewDialog } from "./WhatsNewDialog";
 import { OcrDocumentDialog, OcrResultDialog } from "./OcrDialogs";
 import { InsertFilesDialog, ReplacePagesDialog, SecurityDialog, SplitDialog, WatermarkDialog } from "./PageEditDialogs";
 
@@ -60,6 +62,12 @@ function render(entry: DialogEntry) {
       const p = entry.props as DialogMap["ocrDocument"]["props"];
       return <OcrDocumentDialog tabId={p.tabId} pages={p.pages} done={() => done(undefined)} />;
     }
+    case "whatsNew": {
+      const p = entry.props as DialogMap["whatsNew"]["props"];
+      return <WhatsNewDialog notes={p.notes} updated={p.updated} done={() => done(undefined)} />;
+    }
+    case "update":
+      return <UpdateDialog result={(entry.props as DialogMap["update"]["props"]).result} done={() => done(undefined)} />;
     case "signature":
       return <SignatureDialog initials={(entry.props as DialogMap["signature"]["props"]).initials} done={() => done(undefined)} />;
     case "stampEditor":

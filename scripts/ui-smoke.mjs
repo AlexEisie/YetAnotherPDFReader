@@ -411,6 +411,59 @@ const scenarios = {
     await shot("password-ok");
   },
 
+  async help() {
+    await openSample();
+    await page.keyboard.press("F1");
+    await page.waitForSelector(".help-view .help-block", { timeout: 5000 });
+    await sleep(300);
+    await shot("help-start");
+    await page.type(".help-view .search-box input", "OCR");
+    await sleep(300);
+    await shot("help-search");
+    await page.click(".help-view .search-box input", { clickCount: 3 });
+    await page.keyboard.down("Control");
+    await page.keyboard.press("a");
+    await page.keyboard.up("Control");
+    await page.keyboard.press("Backspace");
+    const items = await page.$$(".help-view .settings-nav-item");
+    await items[3].click();
+    await sleep(300);
+    await shot("help-pages");
+    await items[7].click();
+    await sleep(300);
+    await shot("help-shortcuts");
+    await items[9].click();
+    await sleep(300);
+    await shot("help-about");
+    // Update check against GitHub (live).
+    await page.click(".help-about ~ .help-block .btn.primary");
+    await page.waitForSelector(".update-status:not(:has(.spin))", { timeout: 20000 }).catch(() => undefined);
+    await sleep(500);
+    await shot("update-check");
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Escape");
+    // "Try it" buttons run the command and close the guide.
+    await page.keyboard.press("F1");
+    await page.waitForSelector(".help-view .help-cmd", { timeout: 5000 });
+    const items2 = await page.$$(".help-view .settings-nav-item");
+    await items2[3].click();
+    await sleep(200);
+    await page.click(".help-view .help-cmd");
+    await page.waitForSelector(".organize", { timeout: 5000 });
+    await sleep(300);
+    await shot("help-try-organizer");
+    await page.keyboard.press("Escape");
+    // "What's new" after an update.
+    await page.evaluate(() => {
+      window.yaprDebug.setSetting("ui.lastSeenVersion", "0.1.0");
+      window.yaprDebug.showWhatsNewAfterUpdate();
+    });
+    await page.waitForSelector(".whats-new", { timeout: 5000 });
+    await sleep(300);
+    await shot("whats-new");
+    await page.keyboard.press("Escape");
+  },
+
   async organize() {
     await openSample();
     await page.keyboard.down("Control");

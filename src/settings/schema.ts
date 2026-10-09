@@ -114,6 +114,19 @@ export const SETTING_PAGES: SettingPage[] = [
           },
         ],
       },
+      {
+        title: "settings.group.updates",
+        items: [
+          {
+            kind: "select",
+            path: "general.updateCheck",
+            label: "settings.updateCheck",
+            desc: "settings.updateCheck.desc",
+            options: [o("off", "settings.updateCheck.off"), o("daily", "settings.updateCheck.daily"), o("weekly", "settings.updateCheck.weekly")],
+          },
+          { kind: "custom", id: "updateNow", label: "cmd.help.checkUpdates" },
+        ],
+      },
     ],
   },
   {

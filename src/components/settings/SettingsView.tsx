@@ -10,7 +10,7 @@ import { useSettings, getPath } from "../../settings/store";
 import { ACCENT_PRESETS, DEFAULT_SETTINGS, type PageMode, type Settings } from "../../settings/defaults";
 import { SETTING_PAGES, TOP_PAGES, pageById, trail, type SettingItem, type SettingPage } from "../../settings/schema";
 import { ColorPicker, Segmented, Select, Slider, Switch, CommitInput } from "../common/controls";
-import { useUi, confirm, toast } from "../../state/ui";
+import { useUi, confirm, openDialog, toast } from "../../state/ui";
 import { useLibrary } from "../../state/library";
 import { useSignatures } from "../../state/signatures";
 import { api } from "../../lib/ipc";
@@ -208,6 +208,17 @@ function CustomItem({ id, settings, set, t }: { id: string; settings: Settings; 
           <Keyboard size={15} /> {t("shortcuts.title")}
         </button>
       );
+    case "updateNow": {
+      const last = settings.ui.lastUpdateCheck;
+      return (
+        <div className="row" style={{ gap: 10 }}>
+          <button type="button" className="btn small" onClick={() => void openDialog("update", {})}>
+            {t("cmd.help.checkUpdates")}
+          </button>
+          <span className="muted small">{last ? t("help.lastChecked", { time: new Date(last).toLocaleString() }) : t("help.neverChecked")}</span>
+        </div>
+      );
+    }
     case "about": {
       const info = appInfo();
       return (

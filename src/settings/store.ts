@@ -108,6 +108,8 @@ function setPathImmutable<T>(obj: T, path: SettingPath, value: unknown): T {
 interface SettingsState {
   settings: Settings;
   loaded: boolean;
+  /** No settings file existed: the first start after installing. */
+  firstRun: boolean;
   /** Load from disk; returns whether the file had to be recovered. */
   load: () => Promise<"ok" | "recovered" | "reset">;
   set: (path: SettingPath, value: unknown) => void;
@@ -137,12 +139,13 @@ function scheduleSave(get: () => SettingsState) {
 export const useSettings = create<SettingsState>((set, get) => ({
   settings: DEFAULT_SETTINGS,
   loaded: false,
+  firstRun: false,
 
   load: async () => {
     try {
       const read = await api.storeRead<unknown>(STORE_NAME);
       const settings = sanitizeSettings(read.value ?? {});
-      set({ settings, loaded: true });
+      set({ settings, loaded: true, firstRun: read.value == null && !read.recovered });
       if (read.recovered) {
         scheduleSave(get);
         return read.value ? "recovered" : "reset";

@@ -1,6 +1,6 @@
 /** Start page: open button, recent documents with covers, quick tips. */
 import { useEffect, useState } from "react";
-import { Clock, FileText, FolderOpen, Keyboard, Lightbulb, Moon, Search, MessageSquareText, Settings as SettingsIcon, X, Trash } from "lucide-react";
+import { CircleHelp, Clock, FileText, FolderOpen, Keyboard, Lightbulb, Moon, Search, MessageSquareText, Settings as SettingsIcon, X, Trash } from "lucide-react";
 import { useT, useLocale } from "../../i18n";
 import { formatRelativeTime } from "../../i18n/format";
 import { useLibrary, type RecentEntry } from "../../state/library";
@@ -94,6 +94,9 @@ export function StartPage() {
           </button>
           <button type="button" className="btn large" onClick={() => openSettings()}>
             <SettingsIcon size={18} /> {t("start.settings")}
+          </button>
+          <button type="button" className="btn large ghost" onClick={() => useUi.setState({ help: "start" })}>
+            <CircleHelp size={18} /> {t("cmd.help.guide")}
           </button>
           <button type="button" className="btn large ghost" onClick={() => useUi.setState({ shortcuts: true })}>
             <Keyboard size={18} /> {t("cmd.help.shortcuts")}

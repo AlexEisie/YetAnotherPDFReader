@@ -393,3 +393,134 @@ describe("OCR text assembly", async () => {
     expect(linesToText([])).toBe("");
   });
 });
+
+describe("update check", async () => {
+  const { compareVersions, pickAsset, parseRelease, checkDue, noteBlocks } = await import("./updates");
+  const assets = [
+    "YetAnotherPDFReader_0.4.0_x64-setup.exe",
+    "YetAnotherPDFReader_0.4.0_x64_en-US.msi",
+    "YetAnotherPDFReader_0.4.0_x64_portable.zip",
+    "YetAnotherPDFReader_0.4.0_amd64.deb",
+    "YetAnotherPDFReader-0.4.0-1.x86_64.rpm",
+    "YetAnotherPDFReader_0.4.0_amd64.AppImage",
+  ].map((name) => ({ name, url: `https://github.com/x/${name}`, size: 1 }));
+
+  it("compares versions", () => {
+    expect(compareVersions("0.3.0", "0.3.0")).toBe(0);
+    expect(compareVersions("v0.10.0", "0.9.9")).toBeGreaterThan(0);
+    expect(compareVersions("0.3", "0.3.1")).toBeLessThan(0);
+    expect(compareVersions("1.0.0", "1.0.0-rc.2")).toBeGreaterThan(0);
+    expect(compareVersions("1.0.0-rc.1", "1.0.0-rc.2")).toBeLessThan(0);
+  });
+
+  it("offers the package matching the installation", () => {
+    expect(pickAsset(assets, "windows", "x86_64", "installer")?.name).toMatch(/setup\.exe$/);
+    expect(pickAsset(assets, "windows", "x86_64", "portable")?.name).toMatch(/portable\.zip$/);
+    expect(pickAsset(assets, "linux", "x86_64", "deb")?.name).toMatch(/\.deb$/);
+    expect(pickAsset(assets, "linux", "x86_64", "rpm")?.name).toMatch(/\.rpm$/);
+    expect(pickAsset(assets, "linux", "x86_64", "appimage")?.name).toMatch(/\.AppImage$/);
+    expect(pickAsset(assets, "linux", "aarch64", "deb")).toBeNull();
+    expect(pickAsset(assets, "macos", "aarch64", "installer")).toBeNull();
+  });
+
+  it("parses the GitHub response and ignores foreign links", () => {
+    const release = parseRelease({
+      tag_name: "v0.4.0",
+      name: "v0.4.0 — test",
+      body: "## New\n- one",
+      html_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/tag/v0.4.0",
+      published_at: "2026-11-01T00:00:00Z",
+      assets: [
+        { name: "a.exe", browser_download_url: "https://github.com/a.exe", size: 5 },
+        { name: "evil.exe", browser_download_url: "https://example.com/evil.exe", size: 5 },
+      ],
+    });
+    expect(release.version).toBe("0.4.0");
+    expect(release.assets.map((a) => a.name)).toEqual(["a.exe"]);
+    expect(() => parseRelease({ message: "Not Found" })).toThrow();
+    expect(parseRelease({ tag_name: "v1", html_url: "https://evil.example" }).url).toContain("github.com/AlexEisie");
+  });
+
+  it("schedules automatic checks", () => {
+    const day = 24 * 3600_000;
+    expect(checkDue("off", 0)).toBe(false);
+    expect(checkDue("daily", 0)).toBe(true);
+    expect(checkDue("daily", 1_000_000, 1_000_000 + day - 1)).toBe(false);
+    expect(checkDue("weekly", 1_000_000, 1_000_000 + 7 * day)).toBe(true);
+  });
+
+  it("renders release notes", () => {
+    const blocks = noteBlocks('<p align="center"><img src="x.png"></p>\n**Big** release\n## ✨ New\n- **Organizer**: [docs](https://x)\n  more text\n```\ncode\n```\n| a | b |\n|---|---|');
+    expect(blocks).toEqual([
+      { kind: "text", text: "Big release" },
+      { kind: "heading", text: "✨ New" },
+      { kind: "item", text: "Organizer: docs more text" },
+    ]);
+  });
+});
+
+describe("user guide", async () => {
+  const { helpTopics, referencedCommands, searchHelp } = await import("../help/content");
+  const fs = await import("node:fs");
+  const registry = fs.readFileSync(new URL("../commands/registry.ts", import.meta.url), "utf8");
+
+  it("has the same topics in every language", () => {
+    const zh = helpTopics("zh-CN");
+    const en = helpTopics("en");
+    expect(zh.map((t) => t.id)).toEqual(en.map((t) => t.id));
+    zh.forEach((t, i) => expect(t.blocks.length).toBe(en[i].blocks.length));
+    expect(helpTopics("ja")).toBe(en);
+    expect(helpTopics("zh-TW")).toBe(zh);
+  });
+
+  it("only refers to existing commands", () => {
+    const ids = new Set([...registry.matchAll(/id: "([a-zA-Z.]+)"/g)].map((m) => m[1]));
+    for (const m of registry.matchAll(/sidebarPanel\("([a-z]+)"/g)) ids.add(`view.sidebar.${m[1]}`);
+    for (const m of registry.matchAll(/pageMode\("([a-z]+)"/g)) ids.add(`view.bg.${m[1]}`);
+    const missing = referencedCommands().filter((id) => !ids.has(id));
+    expect(missing).toEqual([]);
+  });
+
+  it("searches the guide", () => {
+    const zh = helpTopics("zh-CN");
+    expect(searchHelp(zh, "扫描件").some((r) => r.topic.id === "ocr")).toBe(true);
+    expect(searchHelp(helpTopics("en"), "password remove").map((r) => r.block.title)).toContain("Remove a password");
+    expect(searchHelp(zh, "")).toEqual([]);
+  });
+});
+
+describe("what's new", async () => {
+  const { RELEASE_NOTES, notesBetween, pendingNotes, recentNotes, FIRST_TRACKED_FROM } = await import("../help/releaseNotes");
+  const { compareVersions } = await import("./updates");
+  const fs = await import("node:fs");
+  const pkg = JSON.parse(fs.readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as { version: string };
+
+  it("has notes for the version being released", () => {
+    // Every release must add a short entry to src/help/releaseNotes.ts.
+    expect(RELEASE_NOTES.map((n) => n.version)).toContain(pkg.version.replace(/[-+].*$/, ""));
+  });
+
+  it("keeps the notes short and in both languages", () => {
+    for (const n of RELEASE_NOTES) {
+      expect(n.zh.length).toBe(n.en.length);
+      expect(n.zh.length).toBeGreaterThan(0);
+      expect(n.zh.length).toBeLessThanOrEqual(6);
+      for (const line of n.zh) expect(line.length).toBeLessThanOrEqual(45);
+      for (const line of n.en) expect(line.length).toBeLessThanOrEqual(110);
+    }
+    const sorted = [...RELEASE_NOTES].sort((a, b) => compareVersions(b.version, a.version));
+    expect(RELEASE_NOTES).toEqual(sorted);
+  });
+
+  it("shows the versions since the last one the user ran", () => {
+    expect(notesBetween("0.1.0", "0.3.0").map((n) => n.version)).toEqual(["0.3.0", "0.2.0"]);
+    expect(notesBetween("0.3.0", "0.3.0")).toEqual([]);
+    expect(notesBetween("0.2.0", "0.3.0-dev").map((n) => n.version)).toEqual(["0.3.0"]);
+    expect(pendingNotes("0.4.0", "", true).notes).toEqual([]);
+    expect(pendingNotes("0.4.0", "", false).from).toBe(FIRST_TRACKED_FROM);
+    expect(pendingNotes("0.4.0", "", false).notes.map((n) => n.version)).toEqual(["0.4.0"]);
+    expect(pendingNotes("0.4.0", "0.2.0", false).notes.map((n) => n.version)).toEqual(["0.4.0", "0.3.0"]);
+    expect(pendingNotes("0.3.0", "0.4.0", false).notes).toEqual([]);
+    expect(recentNotes("0.3.0", 2).map((n) => n.version)).toEqual(["0.3.0", "0.2.0"]);
+  });
+});

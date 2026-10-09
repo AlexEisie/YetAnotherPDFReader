@@ -1,6 +1,8 @@
 /**
  * Global UI state: toasts, modal dialogs (promise based), overlays and window modes.
  */
+import type { UpdateResult } from "../lib/updates";
+import type { ReleaseNote } from "../help/releaseNotes";
 import { create } from "zustand";
 import type { AppError } from "../lib/errors";
 
@@ -67,6 +69,8 @@ export interface DialogMap {
   splitDocument: { props: { tabId: string }; result: void };
   watermark: { props: { tabId: string; pages?: number[] }; result: void };
   security: { props: { tabId: string }; result: void };
+  update: { props: { result?: UpdateResult }; result: void };
+  whatsNew: { props: { notes: ReleaseNote[]; updated: boolean }; result: void };
   ocrResult: { props: { text: string; confidence: number }; result: void };
   ocrDocument: { props: { tabId: string; pages?: number[] }; result: void };
   signature: { props: { initials?: boolean }; result: void };
@@ -105,6 +109,8 @@ interface UiState {
   commentTools: boolean;
   /** Right-hand comments pane visible. */
   commentsPane: boolean;
+  /** In-app guide open on this topic (null: closed). */
+  help: string | null;
   /** Global progress message (e.g. while saving or printing). */
   busy: { message: string; progress: number | null; cancel?: () => void } | null;
 }
@@ -124,6 +130,7 @@ export const useUi = create<UiState>(() => ({
   findFocus: 0,
   commentTools: false,
   commentsPane: false,
+  help: null,
   busy: null,
 }));
 

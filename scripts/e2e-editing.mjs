@@ -70,6 +70,11 @@ try {
   if (!page) throw new Error("app page not found");
   page.on("pageerror", (e) => failures.push(`pageerror: ${e.message}`));
   await page.waitForFunction(() => window.yaprDebug?.active()?.state.status === "ready", { timeout: 30000 });
+  // The first start after a version bump shows "what's new"; close it.
+  if (await page.$(".whats-new")) {
+    await page.keyboard.press("Escape");
+    await sleep(300);
+  }
   await sleep(800);
   const pages = () => page.evaluate(() => window.yaprDebug.active().state.numPages);
   const ready = () => page.waitForFunction(() => window.yaprDebug.active().state.status === "ready", { timeout: 30000 });

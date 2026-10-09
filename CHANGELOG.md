@@ -4,6 +4,14 @@
 
 ## 简体中文
 
+### v0.4.0 — 使用说明、检查更新与新功能介绍
+
+- **应用内使用说明**（`F1`，或「帮助 ▸ 使用说明」、开始页按钮）：10 个主题介绍各项功能，支持搜索；说明旁的按钮可以直接打开对应功能；快捷键列表随自定义设置实时更新。
+- **检查更新**：「帮助 ▸ 检查更新」显示新版本的更新说明，并按安装方式（安装版、便携版、deb、rpm、AppImage）给出下载链接；可以跳过某个版本。
+  - 可在设置或「关于」中开启每天 / 每周自动检查，发现新版本时显示通知。默认关闭，只访问 GitHub，不发送任何个人数据。
+- **新功能介绍**：更新后第一次启动时，分条列出从上次使用的版本到当前版本的主要变化；也可以从「帮助 ▸ 新功能介绍」查看。
+- 「关于」页面整合了版本信息、项目链接、数据和日志文件夹、开源许可。
+
 ### v0.3.0 — 离线文字识别（OCR）
 
 - **离线文字识别（OCR）**：采用 PaddleOCR PP-OCRv6 tiny 与 ONNX Runtime，在本机运行，支持中文和英文。
@@ -53,6 +61,14 @@
 - 安装版、MSI 和便携版。
 
 ## English
+
+### v0.4.0 — User guide, update check and what's new
+
+- **In-app user guide** (`F1`, *Help ▸ User Guide* or the start page): 10 topics with search; buttons next to the explanations open the features; the shortcut list follows your customisations.
+- **Update check**: *Help ▸ Check for Updates* shows the release notes and the right download for how the app was installed (installer, portable, deb, rpm, AppImage); a version can be skipped.
+  - Optional daily / weekly automatic check (in Settings or About) with a notification when a new version is out. Off by default; it only contacts GitHub and sends no personal data.
+- **What's new**: the first start after an update lists the main changes of every version since the one you used before, one line each; also under *Help ▸ What's New*.
+- The About page gathers the version, project links, data and log folders and licences.
 
 ### v0.3.0 — Offline text recognition (OCR)
 

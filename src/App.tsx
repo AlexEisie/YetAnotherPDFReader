@@ -23,6 +23,7 @@ import { FindBar } from "./components/viewer/FindBar";
 import { DialogHost } from "./components/dialogs/DialogHost";
 import { AboutDialog, CommandPalette, ShortcutsDialog } from "./components/dialogs/Overlays";
 import { SettingsView } from "./components/settings/SettingsView";
+import { HelpView } from "./components/help/HelpView";
 import { Toasts } from "./components/common/Toasts";
 import { TooltipHost } from "./components/common/Tooltip";
 import { DUOTONE_FILTER_ID, duotoneTables, pageColorStyle } from "./document/pageColors";
@@ -356,6 +357,7 @@ export function App() {
   const presentationSettings = useSettings((s) => s.settings.presentation);
   const tabCount = useTabs((s) => s.tabs.length);
   const settingsOpen = useUi((s) => !!s.settings);
+  const helpOpen = useUi((s) => !!s.help);
   const palette = useUi((s) => s.palette);
   const shortcuts = useUi((s) => s.shortcuts);
   const about = useUi((s) => s.about);
@@ -381,6 +383,7 @@ export function App() {
       </div>
       {appearance.showStatusBar && <StatusBar />}
       {settingsOpen && <SettingsView />}
+      {helpOpen && <HelpView />}
       {palette && <CommandPalette />}
       {shortcuts && <ShortcutsDialog />}
       {about && <AboutDialog />}

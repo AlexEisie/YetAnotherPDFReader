@@ -26,6 +26,8 @@ import { loadSession, useLibrary } from "./state/library";
 import { useSignatures } from "./state/signatures";
 import { openPaths, activateTab, activeController } from "./state/tabs";
 import { openDialog, toast } from "./state/ui";
+import { autoCheckForUpdates } from "./state/updater";
+import { showWhatsNewAfterUpdate } from "./state/whatsNew";
 import { setAppInfo } from "./state/app";
 
 const log = createLogger("boot");
@@ -100,11 +102,21 @@ async function boot() {
 
   if (import.meta.env.DEV) {
     // Debug handle for automated end-to-end tests (dev builds only).
-    (window as unknown as { yaprDebug: unknown }).yaprDebug = { active: activeController, openDialog };
+    (window as unknown as { yaprDebug: unknown }).yaprDebug = {
+      active: activeController,
+      openDialog,
+      setSetting: (path: string, value: unknown) => useSettings.getState().set(path, value),
+      settings: () => useSettings.getState().settings,
+      autoCheckForUpdates,
+      showWhatsNewAfterUpdate,
+    };
   }
 
   const info = await api.appReady();
   setAppInfo(info);
+  showWhatsNewAfterUpdate();
+  // Automatic update check (off unless enabled in the settings), after start-up settles.
+  setTimeout(() => void autoCheckForUpdates(), 6000);
   log.info(`ready (v${info.version}, ${info.platform})`);
 
   if (info.launchFiles.length) {
