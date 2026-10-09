@@ -235,6 +235,8 @@ pub fn run() {
             commands::pdf_build,
             commands::pdf_page_ops,
             commands::pdf_extract,
+            commands::pdf_security_info,
+            commands::pdf_security,
             commands::pdf_read_annotations,
             commands::pdf_fonts,
             commands::pdf_page_count,

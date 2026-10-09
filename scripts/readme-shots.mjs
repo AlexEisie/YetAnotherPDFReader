@@ -243,7 +243,50 @@ for (lang of langs) {
   await page.keyboard.press("Escape");
   await page.keyboard.press("Escape");
 
-  // 7. Start page with recent documents.
+  // 7. Page organizer, watermark and password protection.
+  const palette = async (query) => {
+    await page.keyboard.down("Control");
+    await page.keyboard.down("Shift");
+    await page.keyboard.press("p");
+    await page.keyboard.up("Shift");
+    await page.keyboard.up("Control");
+    await sleep(250);
+    await page.keyboard.type(query);
+    await sleep(250);
+    await page.keyboard.press("Enter");
+  };
+  await boot(base, ["sample.pdf"]);
+  await setSetting("ui.organizeSize", 150);
+  await active((c) => c.setOrganizing(true));
+  await page.waitForSelector(".org-card img", { timeout: 15000 });
+  await sleep(1200);
+  const cards = await page.$$(".org-card");
+  await cards[2].click();
+  await page.keyboard.down("Control");
+  await cards[3].click();
+  await page.keyboard.up("Control");
+  await cards[3].hover();
+  await sleep(400);
+  await shot("organize");
+  await active((c) => c.setOrganizing(false));
+  await boot(base);
+  await active((c) => c.goToPage(2));
+  await palette(zh ? "添加水印" : "Add Watermark");
+  await page.waitForSelector(".wm-preview img", { timeout: 15000 });
+  await page.click('.wm-positions + label input[type="checkbox"]').catch(() => {});
+  await sleep(900);
+  await shot("watermark");
+  await page.keyboard.press("Escape");
+  await palette(zh ? "密码保护" : "Password Protection");
+  await page.waitForSelector(".security-status", { timeout: 10000 });
+  await sleep(400);
+  await page.type(".security-section .input-with-button input", "Night-Sky-2026");
+  await page.click(".security-section:nth-of-type(2) .checkbox input");
+  await sleep(300);
+  await shot("security");
+  await page.keyboard.press("Escape");
+
+  // 8. Start page with recent documents.
   await boot(base, ["sample.pdf", "demo.pdf"]);
   await page.click(".tabbar .home-btn");
   await sleep(800);

@@ -303,3 +303,75 @@ describe("recent documents", async () => {
     ]);
   });
 });
+
+describe("page editing plans", async () => {
+  const { planInsertion, planReplace, orderMoving, planSplit, splitFileNames, passwordStrength, watermarkPlacements } = await import("../document/pageEditing");
+  const pdf = (pageCount: number, pages: number[] | null = null) =>
+    ({ kind: "pdf", path: "a.pdf", name: "a.pdf", bytes: new Uint8Array(1), pageCount, password: null, pages }) as const;
+  const picture = (w: number, h: number) =>
+    ({ kind: "picture", path: "p.png", name: "p.png", bytes: new Uint8Array(1), image: { format: "rgba", width: w, height: h }, preview: null }) as const;
+
+  it("inserts sources in order, grouping consecutive pictures", () => {
+    const { ops, blobs } = planInsertion([picture(10, 10), picture(20, 10), pdf(5, [2, 3]), picture(5, 5)], 3, { pageSize: [595, 842], margin: 0 });
+    expect(blobs).toHaveLength(4);
+    expect(ops.map((o) => [o.op, "at" in o ? o.at : null])).toEqual([
+      ["insertImages", 3],
+      ["insertFromBlob", 5],
+      ["insertImages", 7],
+    ]);
+    expect(ops[1]).toMatchObject({ blob: 2, pages: [1, 2] });
+    expect(ops[0]).toMatchObject({ images: [{ blob: 0 }, { blob: 1 }], pageSize: [595, 842] });
+  });
+
+  it("replaces pages by inserting first and deleting the shifted targets", () => {
+    const plan = planReplace([5, 3, 4], (at) => ({ ops: [{ op: "insertBlank", at, count: 2, width: 1, height: 1 }], blobs: [], count: 2 }));
+    expect(plan.ops).toEqual([
+      { op: "insertBlank", at: 2, count: 2, width: 1, height: 1 },
+      { op: "delete", pages: [4, 5, 6] },
+    ]);
+  });
+
+  it("moves selected pages to a gap", () => {
+    expect(orderMoving(5, [1, 2], 4)).toEqual([2, 3, 0, 1, 4]);
+    expect(orderMoving(5, [5], 0)).toEqual([4, 0, 1, 2, 3]);
+    expect(orderMoving(5, [2], 1)).toBeNull();
+    expect(orderMoving(5, [2, 4], 5)).toEqual([0, 2, 4, 1, 3]);
+  });
+
+  it("plans document splits", () => {
+    expect(planSplit(7, "every", 3)).toEqual([
+      [1, 3],
+      [4, 6],
+      [7, 7],
+    ]);
+    expect(planSplit(10, "parts", 3)).toEqual([
+      [1, 4],
+      [5, 7],
+      [8, 10],
+    ]);
+    expect(planSplit(10, "ranges", "1-3, 4-8，9-")).toEqual([
+      [1, 3],
+      [4, 8],
+      [9, 10],
+    ]);
+    expect(planSplit(10, "ranges", "5")).toEqual([[5, 5]]);
+    expect(planSplit(10, "ranges", "8-3")).toBeNull();
+    expect(planSplit(10, "parts", 11)).toBeNull();
+    expect(splitFileNames("doc", [[1, 3], [4, 4]])).toEqual(["doc (1-3).pdf", "doc (4).pdf"]);
+  });
+
+  it("rates passwords", () => {
+    expect(passwordStrength("abc")).toBe(0);
+    expect(passwordStrength("abcdef")).toBe(1);
+    expect(passwordStrength("abcdefgh1")).toBe(2);
+    expect(passwordStrength("Correct-Horse-9")).toBe(3);
+  });
+
+  it("places watermarks like the PDF core", () => {
+    const [[x, y]] = watermarkPlacements("topLeft", 600, 800, 200, 40, 0);
+    expect(x).toBeCloseTo(36 + 100);
+    expect(y).toBeCloseTo(800 - 36 - 20);
+    const tiles = watermarkPlacements("tile", 600, 800, 160, 60, 45);
+    expect(tiles.length).toBeGreaterThan(6);
+  });
+});

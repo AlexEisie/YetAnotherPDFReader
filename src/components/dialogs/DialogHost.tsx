@@ -4,6 +4,7 @@ import { ConfirmDialog, ErrorDialog, GoToPageDialog, LinkDialog, PasswordDialog,
 import { DocPropsDialog } from "./DocPropsDialog";
 import { ExportImageDialog, PageOpsDialog, PrintDialog } from "./DocumentDialogs";
 import { SignatureDialog, StampEditorDialog } from "./SignatureDialog";
+import { InsertFilesDialog, ReplacePagesDialog, SecurityDialog, SplitDialog, WatermarkDialog } from "./PageEditDialogs";
 
 function render(entry: DialogEntry) {
   const done = entry.resolve as (v: unknown) => void;
@@ -34,6 +35,22 @@ function render(entry: DialogEntry) {
     }
     case "exportImage":
       return <ExportImageDialog tabId={(entry.props as DialogMap["exportImage"]["props"]).tabId} done={() => done(undefined)} />;
+    case "insertFiles": {
+      const p = entry.props as DialogMap["insertFiles"]["props"];
+      return <InsertFilesDialog tabId={p.tabId} at={p.at} paths={p.paths} done={() => done(undefined)} />;
+    }
+    case "replacePages": {
+      const p = entry.props as DialogMap["replacePages"]["props"];
+      return <ReplacePagesDialog tabId={p.tabId} pages={p.pages} done={() => done(undefined)} />;
+    }
+    case "splitDocument":
+      return <SplitDialog tabId={(entry.props as DialogMap["splitDocument"]["props"]).tabId} done={() => done(undefined)} />;
+    case "watermark": {
+      const p = entry.props as DialogMap["watermark"]["props"];
+      return <WatermarkDialog tabId={p.tabId} pages={p.pages} done={() => done(undefined)} />;
+    }
+    case "security":
+      return <SecurityDialog tabId={(entry.props as DialogMap["security"]["props"]).tabId} done={() => done(undefined)} />;
     case "signature":
       return <SignatureDialog initials={(entry.props as DialogMap["signature"]["props"]).initials} done={() => done(undefined)} />;
     case "stampEditor":

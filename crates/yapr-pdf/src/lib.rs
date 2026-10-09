@@ -6,7 +6,9 @@
 //!
 //! * annotations (create / modify / delete) including appearance-stream generation,
 //! * document information updates,
-//! * structural page operations (rotate, delete, reorder, insert, merge),
+//! * structural page operations (rotate, flip, delete, reorder, duplicate, insert pages from
+//!   other documents or pictures, merge) and watermarks,
+//! * password protection (AES-256),
 //! * page extraction into a new document.
 //!
 //! All edits of existing files are written as **incremental updates**: the original bytes are
@@ -22,13 +24,18 @@ mod extract;
 mod font_list;
 mod fonts;
 mod geometry;
+mod imaging;
 mod info;
 mod load;
 mod objects;
+mod page_edit;
 mod page_ops;
+mod page_tools;
 mod pages;
 pub mod refs;
+mod security;
 pub mod text;
+mod watermark;
 
 pub use dto::*;
 pub use error::{PdfError, Result};
@@ -82,6 +89,27 @@ pub fn apply_page_ops(
     page_ops::apply(&mut rev, ops, blobs)?;
     info::apply(&mut rev, None, &pdf_date_now())?;
     rev.save()
+}
+
+/// Describe the password protection of a document opened with `password`.
+pub fn security_info(input: &[u8], password: Option<&str>) -> Result<SecurityInfo> {
+    security::security_info(input, password)
+}
+
+/// Protect a document with AES-256 (full rewrite). `owner_password` is required when the
+/// document is already restricted and `password` is only its open password.
+pub fn set_security(
+    input: &[u8],
+    password: Option<&str>,
+    owner_password: Option<&str>,
+    settings: &SecuritySettings,
+) -> Result<Vec<u8>> {
+    security::set_security(input, password, owner_password, settings)
+}
+
+/// Remove the password protection of a document (full rewrite).
+pub fn remove_security(input: &[u8], password: Option<&str>, owner_password: Option<&str>) -> Result<Vec<u8>> {
+    security::remove_security(input, password, owner_password)
 }
 
 /// Build a new standalone document that contains only `pages` (0-based, in the given order).

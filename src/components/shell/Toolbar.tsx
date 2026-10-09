@@ -249,6 +249,7 @@ export function Toolbar() {
               {labels && <span className="btn-label">{t("toolbar.commentMode")}</span>}
             </button>
             <CmdButton id="tool.signature" />
+            <CmdButton id="page.organize" />
           </div>
         </>
       )}

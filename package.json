@@ -1,7 +1,7 @@
 {
   "name": "yet-another-pdf-reader",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A fast, lightweight, Acrobat-style PDF reader built with Rust + Tauri.",
   "license": "MIT",
   "repository": "github:AlexEisie/YetAnotherPDFReader",
@@ -17,6 +17,7 @@
     "test:ui": "node scripts/ui-smoke.mjs",
     "test:e2e": "node scripts/e2e-tauri.mjs",
     "test:release": "node scripts/e2e-release.mjs",
+    "test:editing": "node scripts/e2e-editing.mjs",
     "samples": "python scripts/make-sample-pdfs.py"
   },
   "dependencies": {

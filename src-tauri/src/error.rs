@@ -35,6 +35,8 @@ pub enum AppError {
     UnknownSession,
     #[error("the password is missing or incorrect")]
     Password,
+    #[error("the permissions password is missing or incorrect")]
+    OwnerPassword,
     #[error("the PDF could not be processed: {0}")]
     Pdf(String),
     #[error("this operation is not supported for this document: {0}")]
@@ -64,6 +66,7 @@ impl AppError {
             AppError::FileChanged => "FILE_CHANGED",
             AppError::UnknownSession => "UNKNOWN_SESSION",
             AppError::Password => "PASSWORD",
+            AppError::OwnerPassword => "OWNER_PASSWORD",
             AppError::Pdf(_) => "PDF_ERROR",
             AppError::Unsupported(_) => "UNSUPPORTED",
             AppError::InvalidArgument(_) => "INVALID_ARGUMENT",
@@ -105,6 +108,7 @@ impl From<yapr_pdf::PdfError> for AppError {
         use yapr_pdf::PdfError as E;
         match err {
             E::Password => AppError::Password,
+            E::OwnerPassword => AppError::OwnerPassword,
             E::Unsupported(msg) => AppError::Unsupported(msg),
             E::InvalidRequest(msg) => AppError::InvalidArgument(msg),
             other => AppError::Pdf(other.to_string()),

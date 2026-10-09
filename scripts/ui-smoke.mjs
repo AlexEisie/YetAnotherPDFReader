@@ -410,6 +410,72 @@ const scenarios = {
     await sleep(800);
     await shot("password-ok");
   },
+
+  async organize() {
+    await openSample();
+    await page.keyboard.down("Control");
+    await page.keyboard.down("Shift");
+    await page.keyboard.press("o");
+    await page.keyboard.up("Shift");
+    await page.keyboard.up("Control");
+    await page.waitForSelector(".organize .org-card", { timeout: 10000 });
+    await sleep(1200);
+    await shot("organize");
+    // Multi-select with Ctrl+click, then the context menu.
+    const cards = await page.$$(".org-card");
+    await cards[1].click();
+    await page.keyboard.down("Control");
+    await cards[3].click();
+    await page.keyboard.up("Control");
+    await sleep(300);
+    await cards[3].hover();
+    await sleep(300);
+    await shot("organize-selection");
+    await cards[3].click({ button: "right" });
+    await sleep(300);
+    await shot("organize-menu");
+    await page.keyboard.press("Escape");
+    // Insert dialog from the toolbar.
+    await page.click(".organize-actions .btn:first-child");
+    await sleep(200);
+    await page.click(".menu .menu-item:first-child");
+    await page.waitForSelector(".dialog .drop-zone", { timeout: 5000 });
+    await sleep(300);
+    await shot("insert-files");
+    await page.keyboard.press("Escape");
+    // Watermark dialog with preview.
+    await page.click(".organize-actions .btn:last-child");
+    await page.waitForSelector(".wm-preview img", { timeout: 10000 });
+    await sleep(500);
+    await shot("watermark");
+    await page.keyboard.press("Escape");
+    // Split dialog.
+    await page.click(".organize-actions .btn:nth-last-child(2)");
+    await page.waitForSelector(".split-preview", { timeout: 5000 });
+    await shot("split");
+    await page.keyboard.press("Escape");
+    await page.click(".organize-bar .btn.primary");
+    await sleep(300);
+    // Password protection dialog from the command palette.
+    await page.keyboard.down("Control");
+    await page.keyboard.down("Shift");
+    await page.keyboard.press("p");
+    await page.keyboard.up("Shift");
+    await page.keyboard.up("Control");
+    await sleep(200);
+    await page.keyboard.type("密码保护");
+    await sleep(200);
+    await page.keyboard.press("Enter");
+    await page.waitForSelector(".security-status", { timeout: 5000 });
+    await sleep(500);
+    await page.click(".security-section .checkbox input");
+    await page.click(".security-section:nth-of-type(2) .checkbox input");
+    await sleep(200);
+    await page.type(".security-section .input-with-button input", "Secr3t!pass");
+    await sleep(200);
+    await shot("security");
+    await page.keyboard.press("Escape");
+  },
 };
 
 const run = wanted.length ? wanted : Object.keys(scenarios);

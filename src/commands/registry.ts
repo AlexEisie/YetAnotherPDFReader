@@ -78,6 +78,14 @@ import {
   TextAlignJustify,
   Pin,
   Camera,
+  LayoutGrid,
+  FlipHorizontal2,
+  FlipVertical2,
+  Replace,
+  Scissors,
+  Droplets,
+  Lock,
+  LockOpen,
 } from "lucide-react";
 import type { MessageKey } from "../i18n";
 import { t } from "../i18n";
@@ -209,6 +217,10 @@ function deselect(c: Ctx): boolean {
     c.endSnapshot();
     return true;
   }
+  if (c?.state.organizing) {
+    c.setOrganizing(false);
+    return true;
+  }
   if (isPresenting()) {
     void exitPresentation();
     return true;
@@ -273,6 +285,49 @@ function selectAll(c: Ctx): boolean {
 
 async function rotateCurrentPage(c: DocumentController, delta: number) {
   await c.applyPageOps([{ op: "rotate", pages: [c.state.page - 1], delta }], [], t("cmd.page.rotateCw"));
+}
+
+const allPages = (c: DocumentController) => Array.from({ length: c.state.numPages }, (_, i) => i);
+
+async function rotateAll(c: DocumentController, delta: number, label: MessageKey) {
+  await c.applyPageOps([{ op: "rotate", pages: allPages(c), delta }], [], t(label));
+}
+
+async function flipPages(c: DocumentController, all: boolean, horizontal: boolean) {
+  const pages = all ? allPages(c) : [c.state.page - 1];
+  await c.applyPageOps([{ op: "flip", pages, horizontal }], [], t(horizontal ? "organize.flipH" : "organize.flipV"));
+}
+
+async function duplicateCurrentPage(c: DocumentController) {
+  const page = c.state.page;
+  await c.applyPageOps([{ op: "duplicate", pages: [page - 1], at: page }], [], t("organize.duplicate"));
+  c.goToPage(page + 1, { recordHistory: false });
+}
+
+/** Remove password protection, asking through the security dialog when owner rights are needed. */
+async function removeProtection(c: DocumentController) {
+  try {
+    const info = await c.securityInfo();
+    if (!info.encrypted) {
+      toast("info", t("security.notProtected"));
+      return;
+    }
+    if (info.restricted && !info.ownerAccess && !c.hasOwnerAccess) {
+      void openDialog("security", { tabId: c.tabId });
+      return;
+    }
+    const answer = await confirm({
+      title: t("security.removeTitle"),
+      message: t("security.removeMessage"),
+      confirmLabel: t("security.remove"),
+      danger: true,
+    });
+    if (answer.choice !== "confirm") return;
+    await c.applySecurity(null);
+    toast("success", t("security.removed"), { detail: t("security.saveToApply"), action: { label: t("common.save"), run: () => void c.save() } });
+  } catch (err) {
+    toast("error", toAppError(err).message);
+  }
 }
 
 async function movePage(c: DocumentController, direction: -1 | 1) {
@@ -701,12 +756,41 @@ export const COMMANDS: CommandDef[] = [
   { id: "page.rotateCw", label: "cmd.page.rotateCw", icon: RotateCw, keys: ["Ctrl+Shift+R"], needsDoc: true, run: (c) => c && rotateCurrentPage(c, 90), enabled: canAssemble },
   { id: "page.rotateCcw", label: "cmd.page.rotateCcw", icon: RotateCcw, needsDoc: true, run: (c) => c && rotateCurrentPage(c, -90), enabled: canAssemble },
   {
+    id: "page.organize",
+    label: "cmd.page.organize",
+    icon: LayoutGrid,
+    keys: ["Ctrl+Shift+O"],
+    needsDoc: true,
+    run: (c) => c?.setOrganizing(!c.state.organizing),
+    enabled: ready,
+    checked: (c) => !!c?.state.organizing,
+  },
+  {
     id: "page.rotateAllCw",
     label: "cmd.page.rotateAllCw",
     needsDoc: true,
-    run: (c) => c && c.applyPageOps([{ op: "rotate", pages: Array.from({ length: c.state.numPages }, (_, i) => i), delta: 90 }], [], t("cmd.page.rotateAllCw")),
+    run: (c) => c && rotateAll(c, 90, "cmd.page.rotateAllCw"),
     enabled: canAssemble,
   },
+  { id: "page.rotateAllCcw", label: "cmd.page.rotateAllCcw", needsDoc: true, run: (c) => c && rotateAll(c, -90, "cmd.page.rotateAllCcw"), enabled: canAssemble },
+  { id: "page.rotateAll180", label: "cmd.page.rotateAll180", needsDoc: true, run: (c) => c && rotateAll(c, 180, "cmd.page.rotateAll180"), enabled: canAssemble },
+  { id: "page.flipH", label: "cmd.page.flipH", icon: FlipVertical2, needsDoc: true, run: (c) => c && flipPages(c, false, true), enabled: canAssemble },
+  { id: "page.flipV", label: "cmd.page.flipV", icon: FlipHorizontal2, needsDoc: true, run: (c) => c && flipPages(c, false, false), enabled: canAssemble },
+  { id: "page.flipAllH", label: "cmd.page.flipAllH", needsDoc: true, run: (c) => c && flipPages(c, true, true), enabled: canAssemble },
+  { id: "page.flipAllV", label: "cmd.page.flipAllV", needsDoc: true, run: (c) => c && flipPages(c, true, false), enabled: canAssemble },
+  { id: "page.duplicate", label: "cmd.page.duplicate", icon: Copy, needsDoc: true, run: (c) => c && duplicateCurrentPage(c), enabled: canAssemble },
+  {
+    id: "page.replace",
+    label: "cmd.page.replace",
+    icon: Replace,
+    needsDoc: true,
+    run: (c) => c && openDialog("replacePages", { tabId: c.tabId, pages: [c.state.page] }),
+    enabled: canAssemble,
+  },
+  { id: "page.split", label: "cmd.page.split", icon: Scissors, needsDoc: true, run: (c) => c && openDialog("splitDocument", { tabId: c.tabId }), enabled: ready },
+  { id: "doc.watermark", label: "cmd.doc.watermark", icon: Droplets, needsDoc: true, run: (c) => c && openDialog("watermark", { tabId: c.tabId }), enabled: canAssemble },
+  { id: "doc.security", label: "cmd.doc.security", icon: Lock, needsDoc: true, run: (c) => c && openDialog("security", { tabId: c.tabId }), enabled: ready },
+  { id: "doc.removeSecurity", label: "cmd.doc.removeSecurity", icon: LockOpen, needsDoc: true, run: (c) => c && removeProtection(c), enabled: ready },
   {
     id: "page.delete",
     label: "cmd.page.delete",
@@ -729,7 +813,7 @@ export const COMMANDS: CommandDef[] = [
     label: "cmd.page.insertFile",
     icon: FileInput,
     needsDoc: true,
-    run: (c) => c && openDialog("pageOps", { tabId: c.tabId, mode: "insertFile" }),
+    run: (c) => c && openDialog("insertFiles", { tabId: c.tabId, at: c.state.page }),
     enabled: canAssemble,
   },
   {

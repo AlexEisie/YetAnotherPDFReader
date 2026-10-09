@@ -62,6 +62,11 @@ export interface DialogMap {
     result: void;
   };
   exportImage: { props: { tabId: string }; result: void };
+  insertFiles: { props: { tabId: string; at?: number; paths?: string[] }; result: void };
+  replacePages: { props: { tabId: string; pages?: number[] }; result: void };
+  splitDocument: { props: { tabId: string }; result: void };
+  watermark: { props: { tabId: string; pages?: number[] }; result: void };
+  security: { props: { tabId: string }; result: void };
   signature: { props: { initials?: boolean }; result: void };
   stampEditor: { props: Record<string, never>; result: void };
 }

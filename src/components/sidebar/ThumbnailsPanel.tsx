@@ -235,7 +235,16 @@ export function ThumbnailsPanel({ c }: { c: DocumentController }) {
     return [
       { type: "item", label: t("cmd.page.rotateCw"), disabled: !canAssemble, onSelect: () => void runOps(() => c.applyPageOps([{ op: "rotate", pages: idx, delta: 90 }])) },
       { type: "item", label: t("cmd.page.rotateCcw"), disabled: !canAssemble, onSelect: () => void runOps(() => c.applyPageOps([{ op: "rotate", pages: idx, delta: -90 }])) },
+      { type: "item", label: t("organize.flipH"), disabled: !canAssemble, onSelect: () => void runOps(() => c.applyPageOps([{ op: "flip", pages: idx, horizontal: true }], [], t("organize.flipH"))) },
+      { type: "item", label: t("organize.flipV"), disabled: !canAssemble, onSelect: () => void runOps(() => c.applyPageOps([{ op: "flip", pages: idx, horizontal: false }], [], t("organize.flipV"))) },
       { type: "separator" },
+      {
+        type: "item",
+        label: t("organize.duplicate"),
+        disabled: !canAssemble,
+        onSelect: () => void runOps(() => c.applyPageOps([{ op: "duplicate", pages: idx, at: Math.max(...pages) }], [], t("organize.duplicate"))),
+      },
+      { type: "item", label: t("organize.replace"), disabled: !canAssemble, onSelect: () => void openDialog("replacePages", { tabId: c.tabId, pages }) },
       {
         type: "item",
         label: t("cmd.page.insertBlank"),
@@ -246,10 +255,11 @@ export function ThumbnailsPanel({ c }: { c: DocumentController }) {
         type: "item",
         label: t("cmd.page.insertFile"),
         disabled: !canAssemble,
-        onSelect: () => void openDialog("pageOps", { tabId: c.tabId, mode: "insertFile", pages }),
+        onSelect: () => void openDialog("insertFiles", { tabId: c.tabId, at: Math.max(...pages) }),
       },
       { type: "separator" },
       { type: "item", label: t("cmd.page.extract"), onSelect: () => void openDialog("pageOps", { tabId: c.tabId, mode: "extract", pages }) },
+      { type: "item", label: t("watermark.title"), disabled: !canAssemble, onSelect: () => void openDialog("watermark", { tabId: c.tabId, pages }) },
       {
         type: "item",
         label: t("cmd.page.delete"),
@@ -257,6 +267,8 @@ export function ThumbnailsPanel({ c }: { c: DocumentController }) {
         disabled: !canAssemble || pages.length >= numPages,
         onSelect: () => void openDialog("pageOps", { tabId: c.tabId, mode: "delete", pages }),
       },
+      { type: "separator" },
+      { type: "item", label: t("cmd.page.organize"), onSelect: () => c.setOrganizing(true) },
     ];
   };
 

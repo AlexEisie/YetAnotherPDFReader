@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>A fast, lightweight, open-source PDF reader for the desktop</b><br>
-  Tabs · comments &amp; signatures · page organisation · night reading · region snapshots — in a ~5 MB installer that works fully offline, no account needed.
+  Tabs · comments &amp; signatures · page organizer &amp; merging · watermarks &amp; passwords · night reading · region snapshots — in a ~5 MB installer that works fully offline, no account needed.
 </p>
 
 <div align="center">
@@ -31,7 +31,8 @@
   <a href="#-comparison">Comparison</a> ·
   <a href="#-keyboard-shortcuts">Shortcuts</a> ·
   <a href="#-architecture">Architecture</a> ·
-  <a href="#-building-from-source">Build</a>
+  <a href="#-building-from-source">Build</a> ·
+  <a href="CHANGELOG.md#english">Changelog</a>
 </p>
 
 <p align="center">
@@ -41,6 +42,9 @@
 ---
 
 ## 📥 Download
+
+> [!TIP]
+> **New in v0.2.0**: page organizer (`Ctrl+Shift+O`), combining PDFs and pictures, flipping and splitting, watermarks and AES-256 password protection. See the [changelog](CHANGELOG.md#english).
 
 Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest):
 
@@ -64,7 +68,9 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 | 🪶 | **Really lightweight** | ~5 MB installer, quick start-up, small memory footprint. Files above a configurable size are read from disk in 1 MB ranges, so even documents of several hundred MB open instantly |
 | 🔒 | **Offline and private** | No account, no ads, no telemetry — there is no networking code at all. Web links in documents ask before opening by default |
 | 🛡️ | **Safe saving** | Changes are written as an *incremental update*: the original bytes are kept intact, so **existing digital signatures stay valid**. Files are written to a temporary file and atomically swapped in, with an optional `.bak` copy; unsaved comments can be recovered after a crash |
-| ✍️ | **Full commenting and page tools, free** | Highlights, sticky notes, shapes, stamps, signatures and text boxes — and **comments already in the file can be edited too**. Insert, delete, rotate, reorder and extract pages at no cost, with undo for every step |
+| ✍️ | **Full commenting, free** | Highlights, sticky notes, shapes, stamps, signatures and text boxes — and **comments already in the file can be edited too** |
+| 🗂️ | **Page organizer, free** | Select, drag to reorder, rotate, flip, duplicate, replace and delete in a large thumbnail grid; **combine several PDFs and pictures at once**, or drop them from Explorer straight between pages; split documents by page count or ranges; text or picture watermarks. Every step can be undone |
+| 🔐 | **Password protection** | AES-256 encryption with an open password and / or restricted printing, copying and editing; removing protection takes one step |
 | 🌙 | **Comfortable night reading** | Dark (inverted), **night (dark pages, images keep their natural colours)**, sepia, eye-care green and custom colours; can follow the system dark theme, and sidebar thumbnails are dimmed to match |
 | 📸 | **Sharp region snapshots** | Drag over any part of a page: it is re-rendered from the PDF (up to 600 DPI) and copied straight to the clipboard — not a blurry screen grab. Snapshot mode ends after each capture |
 | ⌨️ | **Built for speed** | Command palette (Ctrl+Shift+P), fully customisable shortcuts, searchable layered settings, 9 UI languages |
@@ -89,8 +95,12 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
     <td width="50%"><img src="docs/images/en/snapshot-done.png" alt="Snapshot copied"><br><sub>Release to copy it to the clipboard; snapshot mode ends automatically, and "Save as image…" writes a PNG</sub></td>
   </tr>
   <tr>
+    <td width="50%"><img src="docs/images/en/organize.png" alt="Page organizer"><br><sub>Page organizer: multi-select, drag to reorder, hover actions, drop files to insert</sub></td>
+    <td width="50%"><img src="docs/images/en/watermark.png" alt="Watermark"><br><sub>Watermarks: text or picture, nine positions or tiled, live preview</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/en/security.png" alt="Password protection"><br><sub>Password protection: open password, permissions and a strength meter</sub></td>
     <td width="50%"><img src="docs/images/en/palette.png" alt="Command palette"><br><sub>Command palette: find and run any command</sub></td>
-    <td width="50%"><img src="docs/images/en/settings.png" alt="Settings"><br><sub>Layered settings with search, per-option reset and import / export</sub></td>
   </tr>
 </table>
 
@@ -133,6 +143,18 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 | **Page organisation** | Rotate, delete, insert blank pages, insert pages from another PDF, reorder, extract to a new file |
 | **Undo and saving** | Undo / redo for everything, page operations included; unsaved-changes tracking; Save, Save As, Revert; crash recovery; optional backup copies |
 
+### Page editing and protection
+
+| Feature | Details |
+| --- | --- |
+| **Page organizer** (`Ctrl+Shift+O`) | Large, resizable thumbnail grid; click, Ctrl / Shift + click and arrow keys to select; drag to reorder; hover buttons to rotate or delete, and a "+" between pages to insert there; context menu and shortcuts (`R` rotate, `Ctrl+D` duplicate, `Delete`) |
+| **Combine files** | Pick several PDFs and pictures (JPG, PNG, WebP, GIF, BMP), reorder them and choose page ranges per PDF; pictures keep their own size or fit A4, Letter or the current page with a margin, in matching orientation. JPEG photos are embedded unchanged and turned upright (EXIF). Or drop files from Explorer between two pages |
+| **Rotate and flip** | Rotate selected or all pages clockwise, counterclockwise or 180°; mirror pages horizontally or vertically, with comments moved along |
+| **Duplicate, replace, delete, extract** | Duplicate pages (with comments), replace pages by other PDFs or pictures, delete, extract to a new file |
+| **Split documents** | Every N pages, into N files or custom ranges, with a preview of the file names and a choice of folder |
+| **Watermarks** | Text (CJK, several lines, bold, colour) or picture; opacity, angle, nine positions or tiled, above or behind the content; live preview and remembered settings |
+| **Password protection** | AES-256; open password and permissions password (printing, copying, comments, editing); strength meter; unlock restrictions for the session with the permissions password; remove protection in one step |
+
 ### Quality of life
 
 - Light, dark or system theme; accent colour, density, text size and animations
@@ -157,11 +179,13 @@ A rough comparison with the **free editions** of popular Windows PDF readers, co
 | Full commenting (shapes, stamps, signatures) | ✅ | ✅ | ✅ | basic |
 | Edit comments already in the file | ✅ | ✅ | ✅ | partial |
 | Page organisation (insert, delete, reorder, extract) | ✅ free | paid edition | depends on edition | ❌ |
+| Combine PDFs and pictures, split documents | ✅ free | paid edition | depends on edition | ❌ |
+| Watermarks, add / remove passwords | ✅ free | paid edition | depends on edition | ❌ |
 | Copy a page region to the clipboard | ✅ choose DPI | ✅ | ✅ | ✅ |
 | Command palette | ✅ | ❌ | ❌ | ✅ |
 | Portable version | ✅ | ❌ | ❌ | ✅ |
 
-**In short**: if all you need is a minimal, very fast viewer, SumatraPDF is a great choice. If you want Acrobat-style commenting and page tools without a multi-hundred-MB install, sign-ins and upsells, YAPR is built for you.
+**In short**: if all you need is a minimal, very fast viewer, SumatraPDF is a great choice. If you want Acrobat-style commenting, page tools, watermarks and encryption without a multi-hundred-MB install, sign-ins and upsells, YAPR is built for you.
 
 ---
 
@@ -177,6 +201,7 @@ A rough comparison with the **free editions** of popular Windows PDF readers, co
 | Next tab | `Ctrl+Tab` | Toggle sidebar | `F4` |
 | Region snapshot | `Ctrl+Alt+S` | Cycle page colours | `Ctrl+Alt+N` |
 | Comment toolbar | `C` | Select / Hand tool | `V` / `H` |
+| Page organizer | `Ctrl+Shift+O` | Delete current page | `Ctrl+Shift+D` |
 | Read mode | `Ctrl+H` | Presentation | `F5` / `Ctrl+L` |
 | Full screen | `F11` | Document properties | `Ctrl+D` |
 | Settings | `Ctrl+,` | Shortcut list | `Ctrl+/` |
@@ -262,7 +287,8 @@ src-tauri/               Tauri application shell (Rust)
   commands.rs            IPC commands (binary framing for large payloads)
   store.rs / fsutil.rs   crash-safe JSON store and atomic file writes
   portable.rs            portable mode
-crates/yapr-pdf/         PDF writing core (Rust, no UI dependency, unit tested)
+crates/yapr-pdf/         PDF writing core (Rust, no UI dependency, unit tested): comments, page
+                         operations, pictures as pages, watermarks, AES-256 encryption
 scripts/                 sample generators, end-to-end tests, UI smoke test, README screenshots
 ```
 
@@ -300,6 +326,7 @@ cargo test --workspace           # Rust unit tests (PDF core, store, IPC framing
 cargo clippy --all-targets       # lints
 node scripts/e2e-tauri.mjs       # end-to-end: drives the real app, verifies the written PDF and the clipboard
 npm run test:ui                  # UI smoke test with screenshots
+npm run test:editing             # end-to-end: organizer, combining pictures and PDFs, watermarks, encryption
 npm run test:release             # release build smoke test
 ```
 
@@ -311,6 +338,7 @@ npm run test:release             # release build smoke test
 - [ ] Code signing
 - [ ] In-app update check
 - [ ] macOS / Linux builds (the code is cross-platform but not yet tested or packaged)
+- [x] Page organizer, merging and splitting, watermarks, password protection
 - [ ] Multi-page snapshots, OCR, editing page content
 
 Ideas and bug reports are welcome in [Issues](https://github.com/AlexEisie/YetAnotherPDFReader/issues).

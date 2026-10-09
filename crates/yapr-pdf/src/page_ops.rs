@@ -13,6 +13,7 @@ use crate::dto::PageOp;
 use crate::error::{PdfError, Result};
 use crate::load::{load_document, Revision, Streams};
 use crate::objects::{num_array, ObjectSource};
+use crate::{page_tools, watermark};
 use crate::pages::{
     collect_pages, inherited, normalize_rotation, page_rotation, root_pages_id, PageRef,
     DEFAULT_MEDIA_BOX, INHERITABLE,
@@ -62,8 +63,31 @@ pub fn apply(rev: &mut Revision, ops: &[PageOp], blobs: &[&[u8]]) -> Result<bool
                 let copied = copy_from(rev, source, password.as_deref(), selected.as_deref())?;
                 insert(&mut pages, *at, copied)?;
             }
+            PageOp::InsertImages {
+                at,
+                images,
+                page_size,
+                margin,
+            } => {
+                check_insert_position(&pages, *at)?;
+                let new_pages = page_tools::image_pages(rev, root, images, blobs, *page_size, *margin)?;
+                insert(&mut pages, *at, new_pages)?;
+            }
+            PageOp::Flip {
+                pages: selected,
+                horizontal,
+            } => page_tools::flip(rev, &pages, selected, *horizontal)?,
+            PageOp::Duplicate { pages: selected, at } => {
+                check_insert_position(&pages, *at)?;
+                let copies = page_tools::duplicate(rev, &pages, selected)?;
+                insert(&mut pages, *at, copies)?;
+            }
+            PageOp::Watermark {
+                pages: selected,
+                watermark,
+            } => watermark::apply_watermark(rev, &pages, selected, watermark, blobs)?,
         }
-        structural |= !matches!(op, PageOp::Rotate { .. });
+        structural |= !matches!(op, PageOp::Rotate { .. } | PageOp::Flip { .. } | PageOp::Watermark { .. });
     }
     if structural {
         rebuild_tree(rev, root, &pages)?;

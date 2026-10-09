@@ -155,6 +155,8 @@ export interface Settings {
     commentsPaneWidth: number;
     commentToolsOpen: boolean;
     thumbnailSize: number;
+    /** Thumbnail width in the page organizer (CSS px). */
+    organizeSize: number;
     dismissedHints: string[];
     recentStamps: string[];
   };
@@ -323,6 +325,7 @@ export const DEFAULT_SETTINGS: Settings = {
     commentsPaneWidth: 320,
     commentToolsOpen: false,
     thumbnailSize: 1,
+    organizeSize: 168,
     dismissedHints: [],
     recentStamps: [],
   },
@@ -402,6 +405,7 @@ export const RANGES: Record<string, readonly [number, number]> = {
   "ui.sidebarWidth": [160, 640],
   "ui.commentsPaneWidth": [240, 640],
   "ui.thumbnailSize": [0.5, 2],
+  "ui.organizeSize": [100, 320],
 };
 
 /** Paths whose value is a colour string (`#rrggbb`), optionally nullable. */

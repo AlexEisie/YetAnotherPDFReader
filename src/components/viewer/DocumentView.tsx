@@ -9,6 +9,7 @@ import { useDocState } from "../../hooks/useDoc";
 import { useT } from "../../i18n";
 import { capturesPointer, isMarkupTool } from "../../annotations/tools";
 import { PageOverlay } from "../annotations/PageOverlay";
+import { OrganizeView } from "../organize/OrganizeView";
 import { FloatingLayer } from "../annotations/FloatingLayer";
 import { settings, useSettings } from "../../settings/store";
 import { closeTab } from "../../state/tabs";
@@ -145,6 +146,7 @@ export function DocumentView({ c, active }: { c: DocumentController; active: boo
   const containerRef = useRef<HTMLDivElement>(null);
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const tool = useDocState(c, (s) => s.tool, "select");
+  const organizing = useDocState(c, (s) => s.organizing, false);
   const status = useDocState(c, (s) => s.status, "loading");
 
   useLayoutEffect(() => {
@@ -300,6 +302,7 @@ export function DocumentView({ c, active }: { c: DocumentController; active: boo
       <FloatingLayer c={c} root={root} />
       <PageIndicator c={c} />
       {tool === "snapshot" && <SnapshotGuide c={c} />}
+      {organizing && <OrganizeView c={c} />}
       <DiskBanner c={c} />
       <StatusView c={c} />
     </div>

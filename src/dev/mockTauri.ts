@@ -162,7 +162,17 @@ async function handle(cmd: string, args: any): Promise<unknown> {
       const target = (meta as { target: string }).target;
       return { path: target, size: 0, modifiedMs: Date.now(), backupPath: null };
     }
+    case "pdf_security_info":
+      return {
+        encrypted: false,
+        method: null,
+        openPassword: false,
+        restricted: false,
+        permissions: { print: true, printHighQuality: true, copy: true, modify: true, annotate: true, fillForms: true, assemble: true },
+        ownerAccess: true,
+      };
     case "pdf_build":
+    case "pdf_security":
     case "pdf_page_ops": {
       const { meta, blobs } = parseFrame(args);
       console.info(`[mock] ${cmd}`, meta);
@@ -196,7 +206,7 @@ async function handle(cmd: string, args: any): Promise<unknown> {
       localStorage.removeItem(store(args.name));
       return null;
     case "app_ready":
-      return { version: "0.1.0-dev", platform: "browser", arch: "x86_64", debug: true, dataDir: "(localStorage)", logDir: "(console)", userName: "Tester", launchFiles: [] };
+      return { version: "0.2.0-dev", platform: "browser", arch: "x86_64", debug: true, dataDir: "(localStorage)", logDir: "(console)", userName: "Tester", launchFiles: [] };
     case "app_take_pending_files":
       return [];
     case "app_log":

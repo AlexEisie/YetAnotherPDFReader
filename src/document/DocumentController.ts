@@ -40,7 +40,7 @@ import {
 } from "../annotations/store";
 import { fromExisting, kindLabelKey, newId, nowIso, type Annotation } from "../annotations/model";
 import { serializeChanges } from "../annotations/serialize";
-import type { DocumentFont, InfoUpdate, PageOp } from "../annotations/dto";
+import type { DocumentFont, InfoUpdate, PageOp, SecurityInfo, SecuritySettings } from "../annotations/dto";
 import type { PlacementPayload, ToolId } from "../annotations/tools";
 import { isMarkupTool, createStyled } from "../annotations/tools";
 import { NavHistory, type ViewLocation } from "./navHistory";
@@ -135,6 +135,10 @@ export interface DocState {
   hasLayers: boolean;
   /** Bumped whenever page geometry changes (rotation, zoom, layout) so overlays re-measure. */
   layoutVersion: number;
+  /** Bumped whenever the underlying document is (re)loaded (page operations, undo, …). */
+  docVersion: number;
+  /** The page organizer covers the viewer. */
+  organizing: boolean;
 }
 
 const ALL_ALLOWED: Permissions = { print: true, copy: true, modify: true, annotate: true, fillForms: true, assemble: true };
@@ -186,6 +190,8 @@ function initialState(path: string): DocState {
     attachmentCount: 0,
     hasLayers: false,
     layoutVersion: 0,
+    docVersion: 0,
+    organizing: false,
   };
 }
 
@@ -227,6 +233,8 @@ export class DocumentController {
   private pageFlipLock = 0;
   private destroyed = false;
   private inkMerge: { id: string; time: number } | null = null;
+  /** Permissions password of a restricted document, once the user entered or chose it. */
+  private ownerPassword: string | null = null;
   /** Tool to restore when the one-shot snapshot mode ends. */
   private beforeSnapshot: { tool: ToolId; payload: PlacementPayload | null } | null = null;
   readonly nav: NavHistory;
@@ -331,9 +339,10 @@ export class DocumentController {
     }
   }
 
-  private load(source: Parameters<typeof loadDocument>[0]): Promise<LoadedDocument> {
+  private load(source: Parameters<typeof loadDocument>[0], password: string | null = null): Promise<LoadedDocument> {
     const s = settings();
     return loadDocument(source, {
+      password,
       onPassword: (reason) => openDialog("password", { fileName: this.state.fileName, reason }),
       onProgress: (loaded, total) => {
         if (total > 0) this.set({ progress: Math.min(1, loaded / total) });
@@ -377,7 +386,8 @@ export class DocumentController {
       pdf.getAttachments().catch(() => null),
       pdf.getOptionalContentConfig().catch(() => null),
     ]);
-    const perms: Permissions = permissions
+    // Owner access (permissions password known) lifts the document's restrictions.
+    const perms: Permissions = permissions && !this.ownerPassword
       ? {
           print: permissions.has(PERM.PRINT) || permissions.has(PERM.PRINT_HQ),
           copy: permissions.has(PERM.COPY),
@@ -407,6 +417,7 @@ export class DocumentController {
 
     this.set({
       numPages: pdf.numPages,
+      docVersion: this.state.docVersion + 1,
       permissions: perms,
       streamed: loaded.streamed,
       outlineCount: outline?.length ?? 0,
@@ -1136,6 +1147,13 @@ export class DocumentController {
     }
   }
 
+  /** Show or hide the page organizer. */
+  setOrganizing(on: boolean): void {
+    if (on === this.state.organizing) return;
+    if (on && this.state.tool === "snapshot") this.endSnapshot();
+    this.set({ organizing: on });
+  }
+
   /** Enter the one-shot snapshot mode, remembering the tool to return to. */
   startSnapshot(): void {
     if (this.state.tool === "snapshot") return;
@@ -1529,15 +1547,93 @@ export class DocumentController {
   async applyPageOps(ops: PageOp[], sources: Uint8Array[] = [], label = t("history.pages")): Promise<void> {
     const pdf = this.pdf;
     if (!pdf || !ops.length) return;
+    await this.transformBase(label, (baked) => api.pdfPageOps({ password: this.password, ops }, baked, sources));
+  }
+
+  /**
+   * Replace the document by `transform(current bytes)` as one undoable step. `passwords` are
+   * the passwords of the new bytes when they differ (security changes).
+   */
+  private async transformBase(
+    label: string,
+    transform: (baked: Uint8Array) => Promise<Uint8Array>,
+    passwords?: { password: string | null; ownerPassword: string | null },
+  ): Promise<void> {
     const beforeBytes = await this.currentBaseBytesForHistory();
-    const before: BaseState = { bytes: beforeBytes, model: snapshot(this.annotations), page: this.state.page, info: this.state.info_update };
+    const before: BaseState = {
+      bytes: beforeBytes,
+      model: snapshot(this.annotations),
+      page: this.state.page,
+      info: this.state.info_update,
+      password: this.password,
+      ownerPassword: this.ownerPassword,
+    };
     const baked = await this.buildCurrentBytes();
-    const result = await api.pdfPageOps({ password: this.password, ops }, baked, sources);
+    const result = await transform(baked);
     // The viewer clamps the page when it is restored after the reload.
     const page = this.state.page;
-    await this.replaceBase(result, page);
-    const after: BaseState = { bytes: result, model: snapshot(this.annotations), page, info: null };
+    await this.replaceBase(result, page, undefined, passwords);
+    const after: BaseState = {
+      bytes: result,
+      model: snapshot(this.annotations),
+      page,
+      info: null,
+      password: this.password,
+      ownerPassword: this.ownerPassword,
+    };
     this.history.pushBase(label, before, after);
+  }
+
+  // --------------------------------------------------------------------------------------------
+  // Password protection
+  // --------------------------------------------------------------------------------------------
+
+  /** Bytes of the document as last loaded (security is not affected by pending comments). */
+  private async baseBytesForInfo(): Promise<Uint8Array> {
+    return this.currentBaseBytesForHistory();
+  }
+
+  /** The current password protection. */
+  async securityInfo(): Promise<SecurityInfo> {
+    const bytes = await this.baseBytesForInfo();
+    return api.pdfSecurityInfo({ password: this.ownerPassword ?? this.password }, bytes);
+  }
+
+  /** Whether restrictions are lifted for this session (permissions password known). */
+  get hasOwnerAccess(): boolean {
+    return this.ownerPassword !== null;
+  }
+
+  /**
+   * Lift the document's restrictions for this session with its permissions password.
+   * Resolves false when the password is wrong.
+   */
+  async unlockPermissions(ownerPassword: string): Promise<boolean> {
+    const bytes = await this.baseBytesForInfo();
+    let info: SecurityInfo;
+    try {
+      info = await api.pdfSecurityInfo({ password: ownerPassword }, bytes);
+    } catch {
+      return false;
+    }
+    if (!info.ownerAccess) return false;
+    this.ownerPassword = ownerPassword;
+    this.set({ permissions: ALL_ALLOWED });
+    return true;
+  }
+
+  /** Protect the document (`settings`) or remove its protection (`null`), as an undoable step. */
+  async applySecurity(securitySettings: SecuritySettings | null): Promise<void> {
+    const ownerPassword = this.ownerPassword;
+    await this.transformBase(
+      securitySettings ? t("history.protect") : t("history.unprotect"),
+      (baked) => api.pdfSecurity({ password: this.password, ownerPassword, settings: securitySettings }, baked),
+      {
+        password: securitySettings?.openPassword || null,
+        // The user just chose the permissions password: keep full access in this session.
+        ownerPassword: securitySettings?.permissionsPassword || null,
+      },
+    );
   }
 
   /** Base bytes as they are now (materialised so the history can restore them later). */
@@ -1548,12 +1644,23 @@ export class DocumentController {
   }
 
   private async swapBase(state: BaseState): Promise<void> {
-    await this.replaceBase(state.bytes, state.page, state.model);
+    const passwords =
+      state.password === undefined ? undefined : { password: state.password, ownerPassword: state.ownerPassword ?? null };
+    await this.replaceBase(state.bytes, state.page, state.model, passwords);
     this.set({ info_update: state.info });
   }
 
   /** Replace the underlying PDF bytes (after page ops / undo of page ops). */
-  private async replaceBase(bytes: Uint8Array, page: number, model?: BaseState["model"]): Promise<void> {
+  private async replaceBase(
+    bytes: Uint8Array,
+    page: number,
+    model?: BaseState["model"],
+    passwords?: { password: string | null; ownerPassword: string | null },
+  ): Promise<void> {
+    if (passwords) {
+      this.password = passwords.password;
+      this.ownerPassword = passwords.ownerPassword;
+    }
     const keepScale = this.state.scaleValue;
     const keepLayout = this.state.layout;
     this.pendingRestore = {
@@ -1570,7 +1677,7 @@ export class DocumentController {
     const old = this.pdf;
     this.pdf = null;
     // pdf.js transfers the buffer to the worker; keep our copy intact for the history.
-    const loaded = await this.load({ kind: "data", data: bytes.slice() });
+    const loaded = await this.load({ kind: "data", data: bytes.slice() }, this.password);
     await old?.loadingTask.destroy().catch(() => undefined);
     this.baseBytes = bytes;
     if (this.baseSession && this.baseSession !== this.diskSession) void api.docClose(this.baseSession.sessionId);

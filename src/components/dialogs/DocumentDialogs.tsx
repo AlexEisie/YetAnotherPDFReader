@@ -14,7 +14,7 @@ import { api } from "../../lib/ipc";
 import { pickPdfFile, dirname, joinPath, stripExtension } from "../../document/fileActions";
 import { pdfjs } from "../../pdf/pdfjs";
 
-function RangeInput({ value, onChange, invalid }: { value: string; onChange: (v: string) => void; invalid: boolean }) {
+export function RangeInput({ value, onChange, invalid }: { value: string; onChange: (v: string) => void; invalid: boolean }) {
   const t = useT();
   return (
     <input
@@ -115,7 +115,7 @@ export function PrintDialog({ tabId, done }: { tabId: string; done: () => void }
   );
 }
 
-const PAGE_SIZES: { id: string; w: number; h: number }[] = [
+export const PAGE_SIZES: { id: string; w: number; h: number }[] = [
   { id: "A4", w: 595.28, h: 841.89 },
   { id: "A3", w: 841.89, h: 1190.55 },
   { id: "A5", w: 419.53, h: 595.28 },

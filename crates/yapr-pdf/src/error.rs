@@ -9,6 +9,9 @@ pub enum PdfError {
     /// The document is encrypted and the supplied password (if any) is wrong.
     #[error("the document is encrypted and the password is missing or wrong")]
     Password,
+    /// Changing the security of a restricted document needs its permissions (owner) password.
+    #[error("the permissions password is missing or wrong")]
+    OwnerPassword,
     /// The document structure is not supported for the requested operation.
     #[error("unsupported document structure: {0}")]
     Unsupported(String),

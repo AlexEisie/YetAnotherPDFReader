@@ -9,6 +9,7 @@ rust-version.workspace = true
 [dependencies]
 lopdf.workspace = true
 flate2.workspace = true
+getrandom.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 log.workspace = true

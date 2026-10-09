@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, FileUp, Minimize2, ZoomIn, ZoomOut } from "l
 import { useSettings } from "./settings/store";
 import { useT } from "./i18n";
 import { useUi, toast } from "./state/ui";
+import { fileDropTarget } from "./state/fileDrop";
 import { allControllers, confirmQuit, openPaths, sessionPaths, useTabs, getController } from "./state/tabs";
 import { flushLibrary, saveSession } from "./state/library";
 import { dispatchKeydown } from "./commands/keybindings";
@@ -130,18 +131,35 @@ function BusyOverlay() {
 
 function DropOverlay() {
   const t = useT();
-  const [state, setState] = useState<"none" | "pdf" | "other">("none");
+  const [state, setState] = useState<"none" | "pdf" | "other" | "target">("none");
+  const [label, setLabel] = useState("");
   useEffect(() => {
     let unlisten: (() => void) | null = null;
+    // Drop positions are physical pixels.
+    const css = (v: number) => v / (window.devicePixelRatio || 1);
     getCurrentWebview()
       .onDragDropEvent((event) => {
         const p = event.payload;
+        const target = fileDropTarget();
         if (p.type === "enter") {
-          setState(p.paths.some((x) => /\.pdf$/i.test(x)) ? "pdf" : "other");
+          if (target) {
+            setLabel(target.label());
+            setState("target");
+            target.over(p.paths, css(p.position.x), css(p.position.y));
+          } else {
+            setState(p.paths.some((x) => /\.pdf$/i.test(x)) ? "pdf" : "other");
+          }
+        } else if (p.type === "over") {
+          target?.over([], css(p.position.x), css(p.position.y));
         } else if (p.type === "leave") {
           setState("none");
+          target?.leave();
         } else if (p.type === "drop") {
           setState("none");
+          if (target) {
+            target.drop(p.paths, css(p.position.x), css(p.position.y));
+            return;
+          }
           const pdfs = p.paths.filter((x) => /\.pdf$/i.test(x));
           if (pdfs.length) void openPaths(pdfs);
           else if (p.paths.length) toast("warning", t("drop.notPdf"));
@@ -152,6 +170,13 @@ function DropOverlay() {
     return () => unlisten?.();
   }, [t]);
   if (state === "none") return null;
+  if (state === "target") {
+    return (
+      <div className="drop-hint" role="status">
+        <FileUp size={16} /> {label}
+      </div>
+    );
+  }
   return (
     <div className="drop-overlay">
       <div className="drop-card">

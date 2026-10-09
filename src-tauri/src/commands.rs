@@ -114,6 +114,19 @@ struct PageOpsMeta {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+struct SecurityMeta {
+    #[serde(default)]
+    password: Option<String>,
+    /// Permissions password of a restricted document (when `password` is only its open password).
+    #[serde(default)]
+    owner_password: Option<String>,
+    /// New protection; `None` removes it.
+    #[serde(default)]
+    settings: Option<yapr_pdf::SecuritySettings>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct ExtractMeta {
     #[serde(default)]
     password: Option<String>,
@@ -201,6 +214,37 @@ pub async fn pdf_page_ops(request: Request<'_>) -> AppResult<Response> {
         let meta: PageOpsMeta = frame.meta()?;
         let output =
             yapr_pdf::apply_page_ops(frame.document()?, meta.password.as_deref(), &meta.ops, &frame.blobs[1..])?;
+        Ok(Response::new(output))
+    })
+    .await
+}
+
+/// Password protection of the document in blob 0 (`password` opens it).
+#[tauri::command]
+pub async fn pdf_security_info(request: Request<'_>) -> AppResult<yapr_pdf::SecurityInfo> {
+    let body = raw_body(&request)?.to_vec();
+    blocking(move || {
+        let frame = Frame::parse(&body)?;
+        let meta: SecurityMeta = frame.meta()?;
+        Ok(yapr_pdf::security_info(frame.document()?, meta.password.as_deref())?)
+    })
+    .await
+}
+
+/// Apply (`settings`) or remove (no `settings`) password protection; returns the new document.
+#[tauri::command]
+pub async fn pdf_security(request: Request<'_>) -> AppResult<Response> {
+    let body = raw_body(&request)?.to_vec();
+    blocking(move || {
+        let frame = Frame::parse(&body)?;
+        let meta: SecurityMeta = frame.meta()?;
+        let input = frame.document()?;
+        let password = meta.password.as_deref();
+        let owner = meta.owner_password.as_deref();
+        let output = match &meta.settings {
+            Some(settings) => yapr_pdf::set_security(input, password, owner, settings)?,
+            None => yapr_pdf::remove_security(input, password, owner)?,
+        };
         Ok(Response::new(output))
     })
     .await
@@ -365,15 +409,26 @@ pub async fn clipboard_write_image(request: Request<'_>) -> AppResult<()> {
                 )))
             }
         }
-        let clipboard_error = |e: arboard::Error| AppError::Clipboard(e.to_string());
-        let mut clipboard = arboard::Clipboard::new().map_err(clipboard_error)?;
-        clipboard
-            .set_image(arboard::ImageData {
+        // Another program may hold the clipboard for a moment (clipboard managers, remote
+        // desktop): retry briefly before giving up.
+        let write = || -> Result<(), arboard::Error> {
+            arboard::Clipboard::new()?.set_image(arboard::ImageData {
                 width: meta.width,
                 height: meta.height,
                 bytes: std::borrow::Cow::Borrowed(pixels),
             })
-            .map_err(clipboard_error)
+        };
+        let mut attempt = 0;
+        loop {
+            match write() {
+                Ok(()) => return Ok(()),
+                Err(arboard::Error::ClipboardOccupied) if attempt < 10 => {
+                    attempt += 1;
+                    std::thread::sleep(std::time::Duration::from_millis(60));
+                }
+                Err(e) => return Err(AppError::Clipboard(e.to_string())),
+            }
+        }
     })
     .await
 }

@@ -219,6 +219,11 @@ impl Content {
         self.op(&[size], "Tf")
     }
 
+    /// Text rendering mode (0 fill, 1 stroke, 2 fill + stroke, ...).
+    pub fn render_mode(&mut self, mode: u8) -> &mut Self {
+        self.op(&[f64::from(mode)], "Tr")
+    }
+
     /// Set the text matrix to a pure translation (absolute positioning inside `BT`/`ET`).
     pub fn text_origin(&mut self, x: f64, y: f64) -> &mut Self {
         self.op(&[1.0, 0.0, 0.0, 1.0, x, y], "Tm")

@@ -89,6 +89,8 @@ export interface LoadOptions {
   useSystemFonts: boolean;
   enableXfa: boolean;
   enableHWA: boolean;
+  /** Password known in advance (tried before asking the user). */
+  password?: string | null;
 }
 
 export type DocumentSource =
@@ -114,6 +116,7 @@ function commonParams(opts: LoadOptions) {
     useSystemFonts: opts.useSystemFonts,
     enableXfa: opts.enableXfa,
     enableHWA: opts.enableHWA,
+    password: opts.password ?? undefined,
     verbosity: pdfjs.VerbosityLevel.ERRORS,
   };
 }
@@ -147,7 +150,7 @@ export async function loadDocument(source: DocumentSource, opts: LoadOptions): P
     task = pdfjs.getDocument({ ...commonParams(opts), data: source.data });
   }
 
-  let password: string | null = null;
+  let password: string | null = opts.password ?? null;
   let userCancelled = false;
   task.onPassword = (update: (pw: string) => void, reason: number) => {
     const why: PasswordReason = reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD ? "incorrect" : "need";

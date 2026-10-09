@@ -16,6 +16,7 @@ import "./styles/layout.css";
 import "./styles/viewer.css";
 import "./styles/annotations.css";
 import "./styles/settings.css";
+import "./styles/organize.css";
 import { App } from "./App";
 import { api, OPEN_FILES_EVENT } from "./lib/ipc";
 import { createLogger, installGlobalErrorHandlers } from "./lib/log";
@@ -24,7 +25,7 @@ import { systemLocale, t, useI18n } from "./i18n";
 import { loadSession, useLibrary } from "./state/library";
 import { useSignatures } from "./state/signatures";
 import { openPaths, activateTab, activeController } from "./state/tabs";
-import { toast } from "./state/ui";
+import { openDialog, toast } from "./state/ui";
 import { setAppInfo } from "./state/app";
 
 const log = createLogger("boot");
@@ -99,7 +100,7 @@ async function boot() {
 
   if (import.meta.env.DEV) {
     // Debug handle for automated end-to-end tests (dev builds only).
-    (window as unknown as { yaprDebug: unknown }).yaprDebug = { active: activeController };
+    (window as unknown as { yaprDebug: unknown }).yaprDebug = { active: activeController, openDialog };
   }
 
   const info = await api.appReady();

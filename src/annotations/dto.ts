@@ -132,7 +132,72 @@ export type PageOp =
   | { op: "delete"; pages: number[] }
   | { op: "reorder"; order: number[] }
   | { op: "insertBlank"; at: number; count: number; width: number; height: number }
-  | { op: "insertFromBlob"; at: number; blob: number; password?: string | null; pages?: number[] | null };
+  | { op: "insertFromBlob"; at: number; blob: number; password?: string | null; pages?: number[] | null }
+  | { op: "insertImages"; at: number; images: PageImage[]; pageSize?: [number, number] | null; margin?: number }
+  | { op: "flip"; pages: number[]; horizontal: boolean }
+  | { op: "duplicate"; pages: number[]; at: number }
+  | { op: "watermark"; pages: number[]; watermark: WatermarkSpec };
+
+/** A picture in a request blob: a JPEG file as is, or RGBA8 pixels (top row first). */
+export interface PageImage {
+  blob: number;
+  format: "jpeg" | "rgba";
+  width: number;
+  height: number;
+}
+
+export type WatermarkPosition =
+  | "center"
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "topLeft"
+  | "topRight"
+  | "bottomLeft"
+  | "bottomRight"
+  | "tile";
+
+export interface WatermarkSpec {
+  text: string | null;
+  fontSize: number;
+  bold: boolean;
+  color: Rgb;
+  image: PageImage | null;
+  /** Picture width as a fraction of the page width. */
+  imageScale: number;
+  opacity: number;
+  /** Counter-clockwise, degrees. */
+  rotation: number;
+  position: WatermarkPosition;
+  layer: "above" | "below";
+  cjkHint: string | null;
+}
+
+export interface DocumentPermissions {
+  print: boolean;
+  printHighQuality: boolean;
+  copy: boolean;
+  modify: boolean;
+  annotate: boolean;
+  fillForms: boolean;
+  assemble: boolean;
+}
+
+export interface SecuritySettings {
+  openPassword: string;
+  permissionsPassword: string;
+  permissions: DocumentPermissions;
+}
+
+export interface SecurityInfo {
+  encrypted: boolean;
+  method: string | null;
+  openPassword: boolean;
+  restricted: boolean;
+  permissions: DocumentPermissions;
+  ownerAccess: boolean;
+}
 
 export function emptyChanges(): DocumentChanges {
   return { annotations: { add: [], modify: [], delete: [] } };

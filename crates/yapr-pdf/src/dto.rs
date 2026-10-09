@@ -382,6 +382,184 @@ pub enum PageOp {
         #[serde(default)]
         pages: Option<Vec<u32>>,
     },
+    /// Insert one page per image before index `at`.
+    ///
+    /// With `page_size` every page has that size (swapped to landscape for landscape
+    /// pictures) and the picture is fitted inside `margin`; without it the page takes the
+    /// picture's size at 96 dpi.
+    #[serde(rename_all = "camelCase")]
+    InsertImages {
+        at: u32,
+        images: Vec<PageImage>,
+        #[serde(default)]
+        page_size: Option<[f64; 2]>,
+        #[serde(default)]
+        margin: f64,
+    },
+    /// Mirror pages horizontally (left ↔ right as displayed) or vertically.
+    #[serde(rename_all = "camelCase")]
+    Flip { pages: Vec<u32>, horizontal: bool },
+    /// Copy pages (with their comments) and insert the copies, in order, before index `at`.
+    #[serde(rename_all = "camelCase")]
+    Duplicate { pages: Vec<u32>, at: u32 },
+    /// Stamp a text or picture watermark into the content of `pages`.
+    #[serde(rename_all = "camelCase")]
+    Watermark {
+        pages: Vec<u32>,
+        watermark: WatermarkSpec,
+    },
+}
+
+/// Encoding of a picture blob.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ImageFormat {
+    /// A complete JPEG file, embedded unchanged (EXIF orientation is honoured).
+    Jpeg,
+    /// `width * height * 4` bytes of non-premultiplied RGBA8, top row first.
+    Rgba,
+}
+
+/// A picture stored in a request blob.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PageImage {
+    pub blob: usize,
+    pub format: ImageFormat,
+    /// Pixel size (required for RGBA; for JPEG it is read from the file).
+    #[serde(default)]
+    pub width: u32,
+    #[serde(default)]
+    pub height: u32,
+}
+
+/// Where a watermark is placed on the (displayed) page.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum WatermarkPosition {
+    #[default]
+    Center,
+    Top,
+    Bottom,
+    Left,
+    Right,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+    /// Repeated over the whole page.
+    Tile,
+}
+
+/// Whether a watermark is drawn over or under the page content.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum WatermarkLayer {
+    #[default]
+    Above,
+    Below,
+}
+
+/// A text or picture watermark (the picture wins when both are given).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WatermarkSpec {
+    #[serde(default)]
+    pub text: Option<String>,
+    #[serde(default = "default_watermark_font_size")]
+    pub font_size: f64,
+    #[serde(default)]
+    pub bold: bool,
+    #[serde(default = "default_watermark_color")]
+    pub color: Rgb,
+    #[serde(default)]
+    pub image: Option<PageImage>,
+    /// Picture width as a fraction of the page width.
+    #[serde(default = "default_watermark_scale")]
+    pub image_scale: f64,
+    #[serde(default = "default_watermark_opacity")]
+    pub opacity: f64,
+    /// Counter-clockwise rotation in degrees.
+    #[serde(default)]
+    pub rotation: f64,
+    #[serde(default)]
+    pub position: WatermarkPosition,
+    #[serde(default)]
+    pub layer: WatermarkLayer,
+    /// Language hint for CJK text (`zh-CN`, `ja`, ...).
+    #[serde(default)]
+    pub cjk_hint: Option<String>,
+}
+
+fn default_watermark_font_size() -> f64 {
+    48.0
+}
+
+fn default_watermark_color() -> Rgb {
+    [0.5, 0.5, 0.5]
+}
+
+fn default_watermark_scale() -> f64 {
+    0.4
+}
+
+fn default_watermark_opacity() -> f64 {
+    0.3
+}
+
+/// What a protected document allows (ISO 32000 user access permissions).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentPermissions {
+    pub print: bool,
+    /// Print at full quality (otherwise a low-resolution rendering only).
+    pub print_high_quality: bool,
+    pub copy: bool,
+    pub modify: bool,
+    pub annotate: bool,
+    pub fill_forms: bool,
+    pub assemble: bool,
+}
+
+impl DocumentPermissions {
+    pub const ALL: Self = Self {
+        print: true,
+        print_high_quality: true,
+        copy: true,
+        modify: true,
+        annotate: true,
+        fill_forms: true,
+        assemble: true,
+    };
+}
+
+/// Password protection to apply (AES-256).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SecuritySettings {
+    /// Required to open the document (empty: opens without a password).
+    #[serde(default)]
+    pub open_password: String,
+    /// Required to change permissions or security (empty: no restrictions are enforced).
+    #[serde(default)]
+    pub permissions_password: String,
+    pub permissions: DocumentPermissions,
+}
+
+/// The protection of a document (see [`crate::security_info`]).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SecurityInfo {
+    pub encrypted: bool,
+    /// Human-readable method, e.g. `"AES-256"`.
+    pub method: Option<String>,
+    /// A password is needed to open the document.
+    pub open_password: bool,
+    /// Some permissions are withheld.
+    pub restricted: bool,
+    pub permissions: DocumentPermissions,
+    /// The given password grants full (owner) access, or nothing is restricted.
+    pub owner_access: bool,
 }
 
 /// A font used by the document (see [`crate::list_fonts`]).

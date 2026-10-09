@@ -97,14 +97,22 @@ try {
   await page.mouse.up();
   const after = await page.evaluate(() => ({ tool: window.yaprDebug.active().state.tool, dim: document.querySelectorAll(".snapshot-dim").length }));
   check(after.tool === "select" && after.dim === 0, `snapshot mode ends after one capture (tool ${after.tool})`);
-  await page.waitForFunction(() => [...document.querySelectorAll(".toast")].some((t) => /×/.test(t.textContent ?? "")), { timeout: 15000 });
-  const clip = execFileSync(
-    "powershell",
-    ["-NoProfile", "-STA", "-Command", "Add-Type -AssemblyName System.Windows.Forms; $i = [Windows.Forms.Clipboard]::GetImage(); if ($i) { \"$($i.Width)x$($i.Height)\" } else { 'none' }"],
-    { encoding: "utf8" },
-  ).trim();
-  const [cw, ch] = clip.split("x").map(Number);
-  check(cw > 250 && ch > 150 && Math.abs(cw / ch - 1.5) < 0.05, `clipboard holds the snapshot image (${clip})`);
+  // Success toast shows the image size; a failure toast appears when the system clipboard is
+  // unavailable (held by another program) — report that once and carry on with the rest.
+  await page.waitForFunction(() => document.querySelector(".toast"), { timeout: 15000 });
+  const toastText = await page.$$eval(".toast", (els) => els.map((e) => e.textContent ?? "").join(" | "));
+  if (/×/.test(toastText)) {
+    const clip = execFileSync(
+      "powershell",
+      ["-NoProfile", "-STA", "-Command", "Add-Type -AssemblyName System.Windows.Forms; $i = [Windows.Forms.Clipboard]::GetImage(); if ($i) { \"$($i.Width)x$($i.Height)\" } else { 'none' }"],
+      { encoding: "utf8" },
+    ).trim();
+    const [cw, ch] = clip.split("x").map(Number);
+    check(cw > 250 && ch > 150 && Math.abs(cw / ch - 1.5) < 0.05, `clipboard holds the snapshot image (${clip})`);
+  } else {
+    check(false, `snapshot copied to the clipboard (toast: ${toastText})`);
+  }
+  await page.$$eval(".toast .icon-btn, .toast button[aria-label]", (els) => els.forEach((e) => e.click())).catch(() => undefined);
   // Esc leaves snapshot mode without capturing and restores the previous tool.
   await page.keyboard.press("h");
   await page.keyboard.down("Control");

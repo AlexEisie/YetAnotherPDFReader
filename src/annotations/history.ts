@@ -29,6 +29,9 @@ export interface BaseState {
   info: InfoUpdate | null;
   /** Page shown when this state becomes active again. */
   page: number;
+  /** Passwords that open these bytes (undefined: same as the current document). */
+  password?: string | null;
+  ownerPassword?: string | null;
 }
 
 interface CommandBase {

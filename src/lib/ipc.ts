@@ -11,6 +11,8 @@ import type {
   DocumentFont,
   ExistingAnnotation,
   PageOp,
+  SecurityInfo,
+  SecuritySettings,
 } from "../annotations/dto";
 
 async function call<T>(cmd: string, args?: Parameters<typeof invoke>[1]): Promise<T> {
@@ -132,6 +134,13 @@ export const api = {
   pdfExtract: (meta: { password: string | null; pages: number[]; target: string }, document: Uint8Array) =>
     call<SaveResult>("pdf_extract", encodeFrame(meta, [document])),
   pdfPageCount: (path: string, password: string | null) => call<number>("pdf_page_count", { path, password }),
+  pdfSecurityInfo: (meta: { password: string | null }, document: Uint8Array) =>
+    call<SecurityInfo>("pdf_security_info", encodeFrame(meta, [document])),
+  /** Apply (`settings`) or remove (`settings: null`) password protection. */
+  pdfSecurity: async (
+    meta: { password: string | null; ownerPassword: string | null; settings: SecuritySettings | null },
+    document: Uint8Array,
+  ) => new Uint8Array(await call<ArrayBuffer>("pdf_security", encodeFrame(meta, [document]))),
 
   // Files -------------------------------------------------------------------------------------
   fsStat: (path: string) => call<FileStat>("fs_stat", { path }),

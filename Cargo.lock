@@ -5306,7 +5306,7 @@ checksum = "ea6fc2961e4ef194dcbfe56bb845534d0dc8098940c7e5c012a258bfec6701bd"
 
 [[package]]
 name = "yapr"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "arboard",
  "chrono",
@@ -5328,10 +5328,11 @@ dependencies = [
 
 [[package]]
 name = "yapr-pdf"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "flate2",
+ "getrandom 0.4.3",
  "log",
  "lopdf",
  "serde",
