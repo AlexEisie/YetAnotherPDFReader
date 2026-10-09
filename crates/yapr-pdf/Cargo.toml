@@ -1,0 +1,18 @@
+[package]
+name = "yapr-pdf"
+description = "PDF manipulation core for YetAnotherPDFReader: annotation writing, appearance streams, page operations and metadata."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+lopdf.workspace = true
+flate2.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+log.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

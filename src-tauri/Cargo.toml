@@ -1,0 +1,35 @@
+[package]
+name = "yapr"
+description = "YetAnotherPDFReader - a fast, lightweight, Acrobat-style PDF reader"
+authors = ["YetAnotherPDFReader contributors"]
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+# The `_lib` suffix avoids a name clash with the binary on Windows (cargo issue #8519).
+name = "yapr_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+yapr-pdf = { path = "../crates/yapr-pdf" }
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-window-state = "2"
+tauri-plugin-log = "2"
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log.workspace = true
+chrono.workspace = true
+parking_lot = "0.12"
+arboard = { version = "3", default-features = false, features = ["image-data"] }
+
+[dev-dependencies]
+tempfile = "3"

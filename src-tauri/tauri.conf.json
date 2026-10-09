@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "YetAnotherPDFReader",
+  "version": "0.1.0",
+  "identifier": "io.github.yapr.reader",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5174",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "YetAnotherPDFReader",
+        "width": 1280,
+        "height": 840,
+        "minWidth": 760,
+        "minHeight": 500,
+        "center": true,
+        "visible": false,
+        "dragDropEnabled": true,
+        "backgroundColor": "#1f2023"
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self' 'wasm-unsafe-eval'",
+        "style-src": "'self' 'unsafe-inline'",
+        "img-src": "'self' data: blob:",
+        "font-src": "'self' data: blob:",
+        "worker-src": "'self' blob:",
+        "connect-src": "'self' ipc: http://ipc.localhost data: blob:",
+        "media-src": "'self' blob: data:",
+        "object-src": "'none'",
+        "base-uri": "'self'",
+        "form-action": "'none'"
+      },
+      "dangerousDisableAssetCspModification": [
+        "style-src"
+      ]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis",
+      "msi"
+    ],
+    "category": "Productivity",
+    "publisher": "AlexEisie",
+    "homepage": "https://github.com/AlexEisie/YetAnotherPDFReader",
+    "shortDescription": "Fast, lightweight PDF reader",
+    "longDescription": "YetAnotherPDFReader is a fast, lightweight PDF reader with tabs, annotations, comments, forms, dark reading modes and much more.",
+    "copyright": "© 2026 AlexEisie and YetAnotherPDFReader contributors",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "fileAssociations": [
+      {
+        "ext": [
+          "pdf"
+        ],
+        "name": "PDF Document",
+        "description": "PDF Document",
+        "role": "Viewer",
+        "mimeType": "application/pdf"
+      }
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "SimpChinese",
+          "English",
+          "TradChinese",
+          "Japanese"
+        ],
+        "displayLanguageSelector": true
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "yet-another-pdf-reader",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A fast, lightweight, Acrobat-style PDF reader built with Rust + Tauri.",
+  "license": "MIT",
+  "repository": "github:AlexEisie/YetAnotherPDFReader",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "tauri": "tauri",
+    "app:dev": "tauri dev",
+    "app:build": "tauri build",
+    "test:ui": "node scripts/ui-smoke.mjs",
+    "test:e2e": "node scripts/e2e-tauri.mjs",
+    "test:release": "node scripts/e2e-release.mjs",
+    "samples": "python scripts/make-sample-pdfs.py"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.1",
+    "@tauri-apps/plugin-dialog": "^2.8.1",
+    "@tauri-apps/plugin-opener": "^2.7.0",
+    "lucide-react": "^1.53.0",
+    "pdfjs-dist": "^6.4.299",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.1",
+    "@types/node": "^24.19.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "puppeteer-core": "^25.13.0",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
+  }
+}

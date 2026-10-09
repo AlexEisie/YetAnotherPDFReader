@@ -1,0 +1,22 @@
+# Dependencies & build output
+node_modules/
+dist/
+target/
+src-tauri/gen/
+public/pdfjs/
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Generated test documents
+dev/samples/
+

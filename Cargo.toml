@@ -1,0 +1,30 @@
+[workspace]
+members = ["src-tauri", "crates/yapr-pdf"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/AlexEisie/YetAnotherPDFReader"
+rust-version = "1.88"
+
+[workspace.dependencies]
+lopdf = { version = "0.45", default-features = false, features = ["chrono-clock"] }
+flate2 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = "0.4"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "unwind"
+strip = true
+
+[profile.dev.package."*"]
+# Optimise dependencies even in debug builds so PDF parsing stays snappy while developing.
+opt-level = 2

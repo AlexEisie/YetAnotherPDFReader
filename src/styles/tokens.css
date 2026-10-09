@@ -1,0 +1,147 @@
+/* Design tokens. Theme is selected with <html data-theme="light|dark">; density and text size
+   with data-density / data-ui-scale. The accent colour is injected as --accent at runtime. */
+
+:root {
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans", sans-serif;
+  --font-mono: "Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+  --accent: #e5484d;
+  --accent-text: #ffffff;
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-softer: color-mix(in srgb, var(--accent) 8%, transparent);
+  --accent-strong: color-mix(in srgb, var(--accent) 82%, black);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-xxl: 28px;
+
+  --ctl-h: 30px;
+  --ctl-h-sm: 26px;
+  --icon-btn: 30px;
+  --pad: 10px;
+  --gap: 8px;
+  --menubar-h: 30px;
+  --tabbar-h: 36px;
+  --toolbar-h: 44px;
+  --statusbar-h: 26px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 110ms;
+  --dur: 180ms;
+  --dur-slow: 280ms;
+
+  --success: #2e9e5b;
+  --warning: #d98a00;
+  --danger: #e5484d;
+  --info: #0b79d0;
+}
+
+:root[data-density="compact"] {
+  --ctl-h: 26px;
+  --ctl-h-sm: 22px;
+  --icon-btn: 26px;
+  --pad: 7px;
+  --gap: 6px;
+  --menubar-h: 26px;
+  --tabbar-h: 32px;
+  --toolbar-h: 38px;
+  --statusbar-h: 22px;
+}
+
+:root[data-density="spacious"] {
+  --ctl-h: 34px;
+  --ctl-h-sm: 30px;
+  --icon-btn: 34px;
+  --pad: 13px;
+  --gap: 10px;
+  --menubar-h: 32px;
+  --tabbar-h: 40px;
+  --toolbar-h: 50px;
+  --statusbar-h: 28px;
+}
+
+:root[data-ui-scale="small"] { --fs-xs: 10px; --fs-sm: 11px; --fs: 12px; --fs-md: 13px; --fs-lg: 15px; }
+:root[data-ui-scale="large"] { --fs-xs: 12px; --fs-sm: 13px; --fs: 14px; --fs-md: 15px; --fs-lg: 17px; --fs-xl: 22px; }
+:root[data-ui-scale="xlarge"] { --fs-xs: 13px; --fs-sm: 14px; --fs: 16px; --fs-md: 17px; --fs-lg: 19px; --fs-xl: 24px; --fs-xxl: 32px; }
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f1f1f4;
+  --bg-elev: #f8f8fa;
+  --surface: #ffffff;
+  --surface-2: #f6f6f8;
+  --border: #e1e1e6;
+  --border-strong: #cdcdd4;
+  --text: #1c1c1f;
+  --text-2: #55565c;
+  --text-3: #8b8c93;
+  --hover: rgb(0 0 0 / 0.05);
+  --active: rgb(0 0 0 / 0.09);
+  --selected: var(--accent-soft);
+  --viewer-bg: #e6e6ea;
+  --viewer-bg-darker: #cfcfd5;
+  --viewer-bg-lighter: #f4f4f6;
+  --overlay: rgb(15 15 20 / 0.32);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
+  --shadow: 0 4px 16px rgb(0 0 0 / 0.12), 0 1px 3px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 18px 48px rgb(0 0 0 / 0.2), 0 2px 8px rgb(0 0 0 / 0.08);
+  --page-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 2px 6px rgb(0 0 0 / 0.12), 0 8px 24px rgb(0 0 0 / 0.08);
+  --scrollbar: rgb(0 0 0 / 0.22);
+  --scrollbar-hover: rgb(0 0 0 / 0.38);
+  --tooltip-bg: #2a2b30;
+  --tooltip-text: #f4f4f6;
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1d1e21;
+  --bg-elev: #232428;
+  --surface: #2a2b30;
+  --surface-2: #26272b;
+  --border: #36373d;
+  --border-strong: #45464d;
+  --text: #ececf0;
+  --text-2: #a9aab2;
+  --text-3: #74757d;
+  --hover: rgb(255 255 255 / 0.06);
+  --active: rgb(255 255 255 / 0.1);
+  --viewer-bg: #141517;
+  --viewer-bg-darker: #0c0c0d;
+  --viewer-bg-lighter: #24252a;
+  --overlay: rgb(0 0 0 / 0.5);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow: 0 6px 20px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 20px 56px rgb(0 0 0 / 0.6), 0 2px 8px rgb(0 0 0 / 0.35);
+  --page-shadow: 0 0 0 1px rgb(255 255 255 / 0.04), 0 2px 8px rgb(0 0 0 / 0.5);
+  --scrollbar: rgb(255 255 255 / 0.2);
+  --scrollbar-hover: rgb(255 255 255 / 0.34);
+  --tooltip-bg: #f0f0f3;
+  --tooltip-text: #1c1c1f;
+  --accent-soft: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-softer: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+:root[data-animations="off"] {
+  --dur-fast: 0ms;
+  --dur: 0ms;
+  --dur-slow: 0ms;
+}
+
+:root[data-animations="reduced"] {
+  --dur-fast: 60ms;
+  --dur: 90ms;
+  --dur-slow: 120ms;
+}
