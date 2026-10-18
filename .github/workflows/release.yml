@@ -48,7 +48,7 @@ jobs:
     name: Tests
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
       - name: The version matches the tag
@@ -56,7 +56,7 @@ jobs:
           version="v$(node -p "require('./package.json').version")"
           [ "$version" = "$TAG" ] || { echo "package.json says $version, the tag is $TAG"; exit 1; }
       - run: sudo apt-get update && sudo apt-get install -y $LINUX_DEPS
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -84,13 +84,13 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: ci
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -101,17 +101,17 @@ jobs:
       - name: Collect the installers and make the portable zip
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
-          New-Item -ItemType Directory -Force dist, portable/YetAnotherPDFReader | Out-Null
-          Copy-Item target/release/bundle/nsis/*.exe, target/release/bundle/msi/*.msi dist/
+          New-Item -ItemType Directory -Force release-files, portable/YetAnotherPDFReader | Out-Null
+          Copy-Item target/release/bundle/nsis/*.exe, target/release/bundle/msi/*.msi release-files/
           Copy-Item target/release/yapr.exe portable/YetAnotherPDFReader/YetAnotherPDFReader.exe
           Copy-Item LICENSE, THIRD-PARTY-NOTICES.md portable/YetAnotherPDFReader/
           Copy-Item ci/packaging/portable portable/YetAnotherPDFReader/portable
-          Compress-Archive -Path portable/YetAnotherPDFReader -DestinationPath "dist/YetAnotherPDFReader_${version}_x64_portable.zip"
-          Get-ChildItem dist
+          Compress-Archive -Path portable/YetAnotherPDFReader -DestinationPath "release-files/YetAnotherPDFReader_${version}_x64_portable.zip"
+          Get-ChildItem release-files
       - uses: actions/upload-artifact@v4
         with:
           name: windows
-          path: dist/*
+          path: release-files/*
           if-no-files-found: error
 
   macos:
@@ -135,10 +135,10 @@ jobs:
       # Ad-hoc signature: required on Apple silicon; the app is not notarized.
       APPLE_SIGNING_IDENTITY: "-"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -169,11 +169,11 @@ jobs:
           otool -L "$exe"
           ls -la "$app/Contents/Frameworks" 2>/dev/null || true
           codesign --verify --deep --strict --verbose=2 "$app"
-          mkdir dist && cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/ && ls -la dist
+          mkdir -p release-files && cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg release-files/ && ls -la release-files
       - uses: actions/upload-artifact@v4
         with:
           name: macos-${{ matrix.target }}
-          path: dist/*
+          path: release-files/*
           if-no-files-found: error
 
   linux:
@@ -190,11 +190,11 @@ jobs:
           - arch: arm64
             runner: ubuntu-22.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
       - run: sudo apt-get update && sudo apt-get install -y $LINUX_DEPS
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -221,13 +221,13 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/download-artifact@v4
         with:
-          path: dist
+          path: release-files
           merge-multiple: true
       - name: Checksums
-        run: (cd dist && sha256sum * | tee ../checksums.txt)
+        run: (cd release-files && sha256sum * | tee ../checksums.txt)
       - name: Notes (preview)
         run: |
           node scripts/release-notes.mjs "$TAG" checksums.txt > notes.md
@@ -237,17 +237,17 @@ jobs:
         run: |
           title="$(node scripts/release-notes.mjs "$TAG" checksums.txt --title)"
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release upload "$TAG" dist/* --clobber
+            gh release upload "$TAG" release-files/* --clobber
           else
-            gh release create "$TAG" dist/* --verify-tag --title "$title" --notes-file notes.md
+            gh release create "$TAG" release-files/* --verify-tag --title "$title" --notes-file notes.md
           fi
           # Notes and checksums cover every file of the release, including ones from earlier runs.
           gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq '.assets[] | [.name, (.digest // "")] | @tsv' |
             while IFS=$'\t' read -r name digest; do
               if [ -n "$digest" ]; then
                 echo "${digest#sha256:}  $name"
-              elif [ -f "dist/$name" ]; then
-                (cd dist && sha256sum "$name")
+              elif [ -f "release-files/$name" ]; then
+                (cd release-files && sha256sum "$name")
               else
                 gh release download "$TAG" -p "$name" -O - | sha256sum | sed "s|-\$|$name|"
               fi
