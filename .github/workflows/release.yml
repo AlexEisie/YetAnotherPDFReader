@@ -253,11 +253,15 @@ jobs:
       - name: Checksums
         run: (cd release-files && sha256sum * | tee ../checksums.txt)
       - name: Notes (preview)
+        if: startsWith(env.TAG, 'v')
         run: |
           node scripts/release-notes.mjs "$TAG" checksums.txt > notes.md
           { echo "## $(node scripts/release-notes.mjs "$TAG" checksums.txt --title)"; cat notes.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Files (trial build of a branch)
+        if: "!startsWith(env.TAG, 'v')"
+        run: '{ echo "## Files built from $TAG"; echo; echo "\`\`\`"; cat checksums.txt; echo "\`\`\`"; } >> "$GITHUB_STEP_SUMMARY"'
       - name: Upload to the release
-        if: env.PUBLISH == 'true'
+        if: env.PUBLISH == 'true' && startsWith(env.TAG, 'v')
         run: |
           title="$(node scripts/release-notes.mjs "$TAG" checksums.txt --title)"
           if gh release view "$TAG" > /dev/null 2>&1; then
