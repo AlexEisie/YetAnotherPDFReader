@@ -14,7 +14,7 @@
 [![Release](https://img.shields.io/github/v/release/AlexEisie/YetAnotherPDFReader?label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&color=e5484d)](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/AlexEisie/YetAnotherPDFReader/total?label=%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://github.com/AlexEisie/YetAnotherPDFReader/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-0078d4)](#-下载安装)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078d4)](#-下载安装)
 [![Rust](https://img.shields.io/badge/Rust-1.88%2B-b7410e?logo=rust)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2-24c8db?logo=tauri)](https://tauri.app/)
 [![Stars](https://img.shields.io/github/stars/AlexEisie/YetAnotherPDFReader?style=social)](https://github.com/AlexEisie/YetAnotherPDFReader/stargazers)
@@ -36,7 +36,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_%E4%B8%8B%E8%BD%BD-Windows_Windows_%7C_Linux-e5484d?style=for-the-badge" alt="下载 Windows 和 Linux 版"></a>
+  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_%E4%B8%8B%E8%BD%BD-Windows_%7C_macOS_%7C_Linux-e5484d?style=for-the-badge" alt="下载 Windows、macOS 和 Linux 版"></a>
 </p>
 
 ---
@@ -56,11 +56,15 @@
 | 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_amd64.deb` | Debian、Ubuntu、Linux Mint 等：`sudo apt install ./YetAnotherPDFReader_x.y.z_amd64.deb` |
 | 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora、openSUSE 等：`sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
 | 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | 适用于任意发行版：`chmod +x` 后直接运行 |
+| 🍎 **macOS（Apple 芯片）** | `YetAnotherPDFReader_x.y.z_aarch64.dmg` | M1 及更新的 Mac：打开后把应用拖到「应用程序」文件夹 |
+| 🍎 macOS（Intel） | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel 芯片的 Mac |
 
-**系统要求**：Windows 10 / 11（x64），或 Linux x86_64（glibc 2.35 及以上，例如 Ubuntu 22.04、Debian 12、Fedora 36 及更新版本，需要 WebKitGTK 4.1；deb / rpm 安装时会自动安装依赖）。Windows 上程序使用系统中的 Microsoft Edge WebView2 运行时，Windows 11 和保持更新的 Windows 10 都已自带。如果系统中没有，安装版会自动下载安装；便携版请先手动安装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
+**系统要求**：Windows 10 / 11（x64）；macOS 13.4（Ventura）及以上；或 Linux x86_64（glibc 2.35 及以上，例如 Ubuntu 22.04、Debian 12、Fedora 36 及更新版本，需要 WebKitGTK 4.1；deb / rpm 安装时会自动安装依赖）。Windows 上程序使用系统中的 Microsoft Edge WebView2 运行时，Windows 11 和保持更新的 Windows 10 都已自带。如果系统中没有，安装版会自动下载安装；便携版请先手动安装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
 
 > [!NOTE]
-> 安装包暂未做代码签名。首次运行如果出现 SmartScreen 提示，点击「更多信息」→「仍要运行」即可。每个版本文件的 SHA-256 校验值都列在 Release 说明中。
+> 安装包暂未做代码签名。首次运行如果出现 SmartScreen 提示，点击「更多信息」→「仍要运行」即可。
+>
+> macOS 版本没有经过 Apple 公证，第一次打开时系统会阻止运行：请到「系统设置 ▸ 隐私与安全性」中点击「仍要打开」；如果提示「已损坏」，在终端运行 `xattr -dr com.apple.quarantine /Applications/YetAnotherPDFReader.app` 后再打开。每个版本文件的 SHA-256 校验值都列在 Release 说明中。
 
 ---
 
@@ -326,6 +330,10 @@ npm run tauri dev        # 开发模式（Rust 后端 + Vite 热更新）
 npm run tauri build      # 发布构建，生成 NSIS 安装包和 MSI
 ```
 
+**构建 macOS 版本**：在 Mac 上安装 Xcode 命令行工具后运行 `npm run tauri build`，会生成 `.app` 和 `.dmg`；正式版本由 GitHub Actions 构建。
+
+**发布**：推送 `vX.Y.Z` 标签后，[Release 工作流](.github/workflows/release.yml) 会运行测试，同时构建 Windows、macOS 和 Linux 的全部安装包，并自动发布 Release。
+
 **构建 Linux 版本**：在 Linux 或 WSL（推荐 Ubuntu 22.04）中运行 `bash scripts/build-linux.sh`，会生成 deb、rpm 和 AppImage，所需依赖列在脚本开头。
 
 只在浏览器中调试界面（使用模拟的后端）：
@@ -359,7 +367,7 @@ npm run test:release             # 发布版冒烟测试
 - [ ] 代码签名
 - [x] 应用内使用说明与检查更新
 - [x] Linux 版本（deb、rpm、AppImage）
-- [ ] macOS 版本
+- [x] macOS 版本（Apple 芯片和 Intel）
 - [x] 页面管理、合并与拆分、水印、密码保护
 - [x] 离线文字识别（OCR）
 - [ ] 跨页截图、编辑 PDF 正文

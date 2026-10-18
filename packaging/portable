@@ -1,0 +1,2 @@
+This file switches YetAnotherPDFReader to portable mode: settings, recent files, logs and caches are stored in the "data" folder next to the program.
+此文件使 YetAnotherPDFReader 以便携模式运行：设置、最近文件、日志和缓存都保存在程序旁的 data 文件夹中。删除此文件即可恢复为普通模式。

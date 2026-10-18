@@ -14,7 +14,7 @@
 [![Release](https://img.shields.io/github/v/release/AlexEisie/YetAnotherPDFReader?color=e5484d)](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/AlexEisie/YetAnotherPDFReader/total)](https://github.com/AlexEisie/YetAnotherPDFReader/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-0078d4)](#-download)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078d4)](#-download)
 [![Rust](https://img.shields.io/badge/Rust-1.88%2B-b7410e?logo=rust)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2-24c8db?logo=tauri)](https://tauri.app/)
 [![Stars](https://img.shields.io/github/stars/AlexEisie/YetAnotherPDFReader?style=social)](https://github.com/AlexEisie/YetAnotherPDFReader/stargazers)
@@ -36,7 +36,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-Windows_%7C_Linux-e5484d?style=for-the-badge" alt="Download for Windows and Linux"></a>
+  <a href="https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest"><img src="https://img.shields.io/badge/%E2%AC%87_Download-Windows_%7C_macOS_%7C_Linux-e5484d?style=for-the-badge" alt="Download for Windows, macOS and Linux"></a>
 </p>
 
 ---
@@ -56,11 +56,15 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 | 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_amd64.deb` | Debian, Ubuntu, Linux Mint, …: `sudo apt install ./YetAnotherPDFReader_x.y.z_amd64.deb` |
 | 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora, openSUSE, …: `sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
 | 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | Any distribution: `chmod +x` and run |
+| 🍎 **macOS (Apple silicon)** | `YetAnotherPDFReader_x.y.z_aarch64.dmg` | M1 and newer Macs: open it and drag the app to *Applications* |
+| 🍎 macOS (Intel) | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel Macs |
 
-**Requirements**: Windows 10 / 11 (x64), or Linux x86_64 with glibc 2.35+ (Ubuntu 22.04, Debian 12, Fedora 36 or newer) and WebKitGTK 4.1 — the deb / rpm packages pull in their dependencies. On Windows, the app uses the Microsoft Edge WebView2 runtime that ships with Windows 11 and up-to-date Windows 10. If it is missing, the installer downloads it automatically; for the portable version, install the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) first.
+**Requirements**: Windows 10 / 11 (x64); macOS 13.4 (Ventura) or later; or Linux x86_64 with glibc 2.35+ (Ubuntu 22.04, Debian 12, Fedora 36 or newer) and WebKitGTK 4.1 — the deb / rpm packages pull in their dependencies. On Windows, the app uses the Microsoft Edge WebView2 runtime that ships with Windows 11 and up-to-date Windows 10. If it is missing, the installer downloads it automatically; for the portable version, install the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) first.
 
 > [!NOTE]
-> The binaries are not code-signed yet. If SmartScreen warns on first launch, click "More info" → "Run anyway". SHA-256 checksums of every file are listed in the release notes.
+> The binaries are not code-signed yet. If SmartScreen warns on first launch, click "More info" → "Run anyway".
+>
+> The macOS app is not notarized by Apple, so macOS blocks the first launch: open *System Settings ▸ Privacy & Security* and click *Open Anyway*. If macOS says the app "is damaged", run `xattr -dr com.apple.quarantine /Applications/YetAnotherPDFReader.app` in Terminal and open it again. SHA-256 checksums of every file are listed in the release notes.
 
 ---
 
@@ -328,6 +332,10 @@ npm run tauri dev        # development (Rust back-end + Vite hot reload)
 npm run tauri build      # release build: NSIS installer and MSI
 ```
 
+**macOS**: with the Xcode command line tools installed, `npm run tauri build` makes the `.app` and `.dmg`; release builds come from GitHub Actions.
+
+**Releases**: pushing a `vX.Y.Z` tag runs the [Release workflow](.github/workflows/release.yml), which tests, builds every Windows, macOS and Linux package and publishes the release.
+
 **Linux packages**: run `bash scripts/build-linux.sh` on Linux or in WSL (Ubuntu 22.04 recommended) to build the deb, rpm and AppImage; the required packages are listed at the top of the script.
 
 UI-only development in a browser, with a mocked back-end:
@@ -361,7 +369,7 @@ npm run test:release             # release build smoke test
 - [ ] Code signing
 - [x] In-app user guide and update check
 - [x] Linux builds (deb, rpm, AppImage)
-- [ ] macOS builds
+- [x] macOS builds (Apple silicon and Intel)
 - [x] Page organizer, merging and splitting, watermarks, password protection
 - [x] Offline text recognition (OCR)
 - [ ] Multi-page snapshots, editing page content
