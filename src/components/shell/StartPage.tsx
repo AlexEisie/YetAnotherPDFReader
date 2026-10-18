@@ -10,7 +10,7 @@ import { openSettings, toast, useUi } from "../../state/ui";
 import { api } from "../../lib/ipc";
 import { effectiveKeys } from "../../commands/keybindings";
 import { formatAccelerator } from "../../commands/keys";
-import logoUrl from "../../assets/logo.svg";
+import logoUrl from "../../assets/logo.png";
 
 function RecentCard({ r, missing }: { r: RecentEntry; missing: boolean }) {
   const t = useT();

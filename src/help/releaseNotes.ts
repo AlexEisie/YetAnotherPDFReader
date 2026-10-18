@@ -14,6 +14,11 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: "0.4.1",
+    zh: ["全新的应用图标"],
+    en: ["A new app icon"],
+  },
+  {
     version: "0.4.0",
     zh: [
       "新增应用内使用说明（F1），可以搜索，并能一键打开对应功能",

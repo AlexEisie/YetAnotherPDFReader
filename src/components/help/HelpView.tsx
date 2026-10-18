@@ -18,7 +18,7 @@ import { RELEASES_URL, type AutoCheck } from "../../lib/updates";
 import { toAppError } from "../../lib/errors";
 import { Select } from "../common/controls";
 import { pdfjs } from "../../pdf/pdfjs";
-import logoUrl from "../../assets/logo.svg";
+import logoUrl from "../../assets/logo.png";
 
 const REPO_URL = "https://github.com/AlexEisie/YetAnotherPDFReader";
 

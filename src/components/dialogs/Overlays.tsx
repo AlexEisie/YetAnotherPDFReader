@@ -11,7 +11,7 @@ import { activeController } from "../../state/tabs";
 import { useSettings } from "../../settings/store";
 import { appInfo } from "../../state/app";
 import { pdfjs } from "../../pdf/pdfjs";
-import logoUrl from "../../assets/logo.svg";
+import logoUrl from "../../assets/logo.png";
 
 function score(label: string, query: string): number {
   const l = label.toLowerCase();

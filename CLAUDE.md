@@ -8,3 +8,9 @@
    It is shown once on the first start after updating; `npm test` fails without it.
 3. Add the full notes to `CHANGELOG.md` (both languages) and update the READMEs.
 4. Run the tests (see "测试 / Tests" in the README), build, tag `vX.Y.Z` and publish the release.
+
+## Changing the app icon
+
+Run `python scripts/make-icons.py <icon.png>` (transparent PNG, 1024 px or larger), then
+`node scripts/readme-shots.mjs`, and `cargo clean -p yapr` (and `--release`, and in the Linux
+build directory) before building: Cargo does not notice changed icons.

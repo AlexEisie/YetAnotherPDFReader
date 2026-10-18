@@ -217,7 +217,7 @@ async function handle(cmd: string, args: any): Promise<unknown> {
       localStorage.removeItem(store(args.name));
       return null;
     case "app_ready":
-      return { version: "0.4.0-dev", platform: "browser", arch: "x86_64", debug: true, dataDir: "(localStorage)", logDir: "(console)", userName: "Tester", launchFiles: [], installKind: "installer" };
+      return { version: "0.4.1-dev", platform: "browser", arch: "x86_64", debug: true, dataDir: "(localStorage)", logDir: "(console)", userName: "Tester", launchFiles: [], installKind: "installer" };
     case "app_take_pending_files":
       return [];
     case "app_log":

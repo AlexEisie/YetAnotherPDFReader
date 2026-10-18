@@ -326,7 +326,7 @@ const TEXT = {
     chips: ["Rust + Tauri 2", "Tabs", "Comments & signatures", "Night reading", "Region snapshots", "9 UI languages"],
   },
 };
-const icon = readFileSync("src-tauri/icons/app-icon.svg", "utf8");
+const icon = dataUrl("src-tauri/icons/app-icon.png");
 for (lang of langs) {
   const dir = resolve("docs/images", lang.startsWith("zh") ? "zh" : "en");
   out = dir;
@@ -355,7 +355,7 @@ for (lang of langs) {
   await page.setContent(`<body style="margin:0;width:1280px;height:640px;overflow:hidden;${font}
       background:radial-gradient(1200px 600px at 0% 0%, #3a1d2a 0%, #1b1c22 55%, #141519 100%);color:#f4f4f6;position:relative">
     <div style="position:absolute;left:64px;top:120px;width:500px">
-      <div style="width:96px;height:96px">${icon.replace(/width="1024" height="1024"/, 'width="96" height="96"')}</div>
+      <img src="${icon}" width="104" height="104" style="display:block">
       <div style="font-size:46px;font-weight:700;margin-top:26px;letter-spacing:-0.5px">YetAnotherPDFReader</div>
       <div style="font-size:21px;color:#c9cad3;margin-top:12px;line-height:1.5">${tx.tagline}</div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:30px">

@@ -4,6 +4,10 @@
 
 ## 简体中文
 
+### v0.4.1 — 新图标
+
+- 全新的应用图标，用于程序窗口、任务栏、开始页和「关于」页面；Windows 安装程序也改用应用图标。
+
 ### v0.4.0 — 使用说明、检查更新与新功能介绍
 
 - **应用内使用说明**（`F1`，或「帮助 ▸ 使用说明」、开始页按钮）：10 个主题介绍各项功能，支持搜索；说明旁的按钮可以直接打开对应功能；快捷键列表随自定义设置实时更新。
@@ -61,6 +65,10 @@
 - 安装版、MSI 和便携版。
 
 ## English
+
+### v0.4.1 — New icon
+
+- A new app icon for the window, the taskbar, the start page and the About page; the Windows installer now uses it too.
 
 ### v0.4.0 — User guide, update check and what's new
 
