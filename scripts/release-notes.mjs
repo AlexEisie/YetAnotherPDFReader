@@ -63,7 +63,10 @@ const ROWS = [
   [/_x64\.dmg$/, "🍎 ", "macOS（Intel）· macOS (Intel)"],
   [/_amd64\.deb$/, "🐧 ", (f) => `Debian / Ubuntu / Linux Mint：\`sudo apt install ./${f}\``],
   [/\.x86_64\.rpm$/, "🐧 ", (f) => `Fedora / openSUSE：\`sudo dnf install ./${f}\``],
-  [/\.AppImage$/, "🐧 ", "任意发行版，`chmod +x` 后直接运行 · any distribution: `chmod +x` and run"],
+  [/_amd64\.AppImage$/, "🐧 ", "任意发行版，`chmod +x` 后直接运行 · any distribution: `chmod +x` and run"],
+  [/_arm64\.deb$/, "🐧 ", (f) => `ARM64（树莓派 OS 64 位、Ubuntu 等 · Raspberry Pi OS 64-bit, Ubuntu, …）：\`sudo apt install ./${f}\``],
+  [/\.aarch64\.rpm$/, "🐧 ", (f) => `ARM64 Fedora / openSUSE：\`sudo dnf install ./${f}\``],
+  [/_aarch64\.AppImage$/, "🐧 ", "ARM64 任意发行版 · ARM64, any distribution"],
 ];
 const files = [];
 for (const [re, icon, note] of ROWS) {
@@ -101,7 +104,7 @@ out.push(
 const req = [];
 if (has(/\.(exe|msi|zip)$/)) req.push("Windows 10 / 11 x64（Microsoft Edge WebView2）");
 if (has(/\.dmg$/)) req.push("macOS 13.4+");
-if (has(/\.(deb|rpm|AppImage)$/)) req.push("Linux x86_64，glibc 2.35+（Ubuntu 22.04、Debian 12、Fedora 36 及更新版本），WebKitGTK 4.1");
+if (has(/\.(deb|rpm|AppImage)$/)) req.push("Linux x86_64 / ARM64，glibc 2.35+（Ubuntu 22.04、Debian 12、Fedora 36 及更新版本），WebKitGTK 4.1");
 out.push(`系统要求 · Requirements：${req.join("；")}。`, "");
 if (has(/\.(exe|msi|zip)$/)) {
   out.push(

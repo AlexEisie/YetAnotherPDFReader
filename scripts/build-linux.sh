@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build the Linux packages (.deb, .rpm, .AppImage).
+# Build the Linux packages (.deb, .rpm, .AppImage) for this machine's architecture (x86_64 or
+# aarch64).
 #
 # Works on a Linux machine or in WSL (Ubuntu 22.04 recommended: its glibc 2.35 keeps the
 # packages compatible with most current distributions). From Windows:
@@ -29,13 +30,20 @@ fi
 
 # ONNX Runtime (OCR) is loaded at run time on Linux; ship Microsoft's official build, which
 # runs on glibc 2.28+.
+# Packages are built for the machine's architecture (x86_64 or aarch64).
 ort_version="1.22.0"
+case "$(uname -m)" in
+  x86_64) ort_arch="x64" ;;
+  aarch64 | arm64) ort_arch="aarch64" ;;
+  *) echo "unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+esac
 ort_dir="$work/src-tauri/ocr/linux"
-if [[ ! -f "$ort_dir/libonnxruntime.so" ]]; then
+if [[ ! -f "$ort_dir/libonnxruntime.so" || "$(cat "$ort_dir/arch" 2>/dev/null)" != "$ort_arch" ]]; then
   mkdir -p "$ort_dir"
   tmp="$(mktemp -d)"
-  curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v${ort_version}/onnxruntime-linux-x64-${ort_version}.tgz" | tar -xz -C "$tmp"
-  cp -L "$tmp/onnxruntime-linux-x64-${ort_version}/lib/libonnxruntime.so" "$ort_dir/libonnxruntime.so"
+  curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v${ort_version}/onnxruntime-linux-${ort_arch}-${ort_version}.tgz" | tar -xz -C "$tmp"
+  cp -L "$tmp/onnxruntime-linux-${ort_arch}-${ort_version}/lib/libonnxruntime.so" "$ort_dir/libonnxruntime.so"
+  echo "$ort_arch" > "$ort_dir/arch"
   rm -rf "$tmp"
 fi
 

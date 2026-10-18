@@ -57,9 +57,10 @@ Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPD
 | 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora, openSUSE, …: `sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
 | 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | Any distribution: `chmod +x` and run |
 | 🍎 **macOS (Apple silicon)** | `YetAnotherPDFReader_x.y.z_aarch64.dmg` | M1 and newer Macs: open it and drag the app to *Applications* |
-| 🍎 macOS (Intel) | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel Macs |
+| 🍎 macOS (Intel) | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel Macs (from the next release) |
+| 🐧 Linux ARM64 | `YetAnotherPDFReader_x.y.z_arm64.deb`<br>`YetAnotherPDFReader-x.y.z-1.aarch64.rpm`<br>`YetAnotherPDFReader_x.y.z_aarch64.AppImage` | ARM64 devices (64-bit Raspberry Pi 4/5 systems, ARM servers and laptops, …), used as above (from the next release) |
 
-**Requirements**: Windows 10 / 11 (x64); macOS 13.4 (Ventura) or later; or Linux x86_64 with glibc 2.35+ (Ubuntu 22.04, Debian 12, Fedora 36 or newer) and WebKitGTK 4.1 — the deb / rpm packages pull in their dependencies. On Windows, the app uses the Microsoft Edge WebView2 runtime that ships with Windows 11 and up-to-date Windows 10. If it is missing, the installer downloads it automatically; for the portable version, install the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) first.
+**Requirements**: Windows 10 / 11 (x64); macOS 13.4 (Ventura) or later; or Linux x86_64 / ARM64 with glibc 2.35+ (Ubuntu 22.04, Debian 12, Fedora 36 or newer) and WebKitGTK 4.1 — the deb / rpm packages pull in their dependencies. On Windows, the app uses the Microsoft Edge WebView2 runtime that ships with Windows 11 and up-to-date Windows 10. If it is missing, the installer downloads it automatically; for the portable version, install the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) first.
 
 > [!NOTE]
 > The binaries are not code-signed yet. If SmartScreen warns on first launch, click "More info" → "Run anyway".
@@ -368,7 +369,7 @@ npm run test:release             # release build smoke test
 - [x] First Windows release (installer, MSI, portable)
 - [ ] Code signing
 - [x] In-app user guide and update check
-- [x] Linux builds (deb, rpm, AppImage)
+- [x] Linux builds (deb, rpm, AppImage; x86_64 and ARM64)
 - [x] macOS builds (Apple silicon and Intel)
 - [x] Page organizer, merging and splitting, watermarks, password protection
 - [x] Offline text recognition (OCR)

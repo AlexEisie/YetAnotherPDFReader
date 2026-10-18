@@ -3,7 +3,7 @@
 #   git tag v0.4.2 && git push origin v0.4.2
 #
 # Runs the unit tests, builds Windows (installer, MSI, portable zip), macOS (Apple silicon and
-# Intel DMGs) and Linux (deb, rpm, AppImage) in parallel, then creates the GitHub release with
+# Intel DMGs) and Linux (deb, rpm, AppImage for x86_64 and ARM64) in parallel, then creates the GitHub release with
 # notes from CHANGELOG.md (scripts/release-notes.mjs) and SHA-256 checksums. Nothing is published
 # unless the tests and every build succeed.
 #
@@ -177,10 +177,18 @@ jobs:
           if-no-files-found: error
 
   linux:
-    name: Linux
+    name: Linux (${{ matrix.arch }})
     if: contains(fromJSON('["all", "linux"]'), inputs.platforms || 'all')
     # Ubuntu 22.04 (glibc 2.35) keeps the packages compatible with most current distributions.
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-22.04
+          - arch: arm64
+            runner: ubuntu-22.04-arm
     steps:
       - uses: actions/checkout@v4
         with:
@@ -192,10 +200,12 @@ jobs:
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+        with:
+          key: linux-${{ matrix.arch }}
       - run: bash scripts/build-linux.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: linux
+          name: linux-${{ matrix.arch }}
           path: target/linux-bundle/*
           if-no-files-found: error
 

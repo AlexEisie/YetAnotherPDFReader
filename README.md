@@ -57,9 +57,10 @@
 | 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora、openSUSE 等：`sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
 | 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | 适用于任意发行版：`chmod +x` 后直接运行 |
 | 🍎 **macOS（Apple 芯片）** | `YetAnotherPDFReader_x.y.z_aarch64.dmg` | M1 及更新的 Mac：打开后把应用拖到「应用程序」文件夹 |
-| 🍎 macOS（Intel） | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel 芯片的 Mac |
+| 🍎 macOS（Intel） | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel 芯片的 Mac（下一个版本起提供） |
+| 🐧 Linux ARM64 | `YetAnotherPDFReader_x.y.z_arm64.deb`<br>`YetAnotherPDFReader-x.y.z-1.aarch64.rpm`<br>`YetAnotherPDFReader_x.y.z_aarch64.AppImage` | ARM64 设备（树莓派 4/5 的 64 位系统、ARM 服务器和笔记本等），用法同上（下一个版本起提供） |
 
-**系统要求**：Windows 10 / 11（x64）；macOS 13.4（Ventura）及以上；或 Linux x86_64（glibc 2.35 及以上，例如 Ubuntu 22.04、Debian 12、Fedora 36 及更新版本，需要 WebKitGTK 4.1；deb / rpm 安装时会自动安装依赖）。Windows 上程序使用系统中的 Microsoft Edge WebView2 运行时，Windows 11 和保持更新的 Windows 10 都已自带。如果系统中没有，安装版会自动下载安装；便携版请先手动安装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
+**系统要求**：Windows 10 / 11（x64）；macOS 13.4（Ventura）及以上；或 Linux x86_64 / ARM64（glibc 2.35 及以上，例如 Ubuntu 22.04、Debian 12、Fedora 36 及更新版本，需要 WebKitGTK 4.1；deb / rpm 安装时会自动安装依赖）。Windows 上程序使用系统中的 Microsoft Edge WebView2 运行时，Windows 11 和保持更新的 Windows 10 都已自带。如果系统中没有，安装版会自动下载安装；便携版请先手动安装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
 
 > [!NOTE]
 > 安装包暂未做代码签名。首次运行如果出现 SmartScreen 提示，点击「更多信息」→「仍要运行」即可。
@@ -366,7 +367,7 @@ npm run test:release             # 发布版冒烟测试
 - [x] Windows 首个版本（安装版、MSI、便携版）
 - [ ] 代码签名
 - [x] 应用内使用说明与检查更新
-- [x] Linux 版本（deb、rpm、AppImage）
+- [x] Linux 版本（deb、rpm、AppImage；x86_64 和 ARM64）
 - [x] macOS 版本（Apple 芯片和 Intel）
 - [x] 页面管理、合并与拆分、水印、密码保护
 - [x] 离线文字识别（OCR）
