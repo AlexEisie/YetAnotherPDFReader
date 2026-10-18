@@ -46,19 +46,19 @@
 > [!TIP]
 > **v0.4.0 新功能**：应用内使用说明（`F1`）、检查更新（可选每天 / 每周自动检查，默认关闭），更新后首次启动会介绍新版本的变化。v0.3.0 新增了离线文字识别（OCR），v0.2.0 新增了页面管理、合并与拆分、水印、密码保护和 Linux 版本。完整内容见 [更新日志](CHANGELOG.md)。
 
-前往 [Releases](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest) 下载最新版本：
+前往 [Releases](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest) 下载最新版本（从 v0.4.2 起，文件名中包含平台和架构）：
 
 | 版本 | 文件 | 说明 |
 | --- | --- | --- |
-| **安装版（推荐）** | `YetAnotherPDFReader_x.y.z_x64-setup.exe` | 安装到当前用户，**不需要管理员权限**；会注册 `.pdf` 文件关联；安装界面支持简体中文、English、繁體中文和日本語 |
-| MSI 安装包 | `YetAnotherPDFReader_x.y.z_x64_en-US.msi` | 适合企业批量部署（组策略、Intune 等） |
-| **便携版** | `YetAnotherPDFReader_x.y.z_x64_portable.zip` | 解压即用。设置、最近文件、日志和缓存都保存在程序旁边的 `data` 文件夹里，可以放在 U 盘中随身携带 |
-| 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_amd64.deb` | Debian、Ubuntu、Linux Mint 等：`sudo apt install ./YetAnotherPDFReader_x.y.z_amd64.deb` |
-| 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora、openSUSE 等：`sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
-| 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | 适用于任意发行版：`chmod +x` 后直接运行 |
-| 🍎 **macOS（Apple 芯片）** | `YetAnotherPDFReader_x.y.z_aarch64.dmg` | M1 及更新的 Mac：打开后把应用拖到「应用程序」文件夹 |
-| 🍎 macOS（Intel） | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel 芯片的 Mac（下一个版本起提供） |
-| 🐧 Linux ARM64 | `YetAnotherPDFReader_x.y.z_arm64.deb`<br>`YetAnotherPDFReader-x.y.z-1.aarch64.rpm`<br>`YetAnotherPDFReader_x.y.z_aarch64.AppImage` | ARM64 设备（树莓派 4/5 的 64 位系统、ARM 服务器和笔记本等），用法同上（下一个版本起提供） |
+| **安装版（推荐）** | `YetAnotherPDFReader_x.y.z_windows_x64-setup.exe` | 安装到当前用户，**不需要管理员权限**；会注册 `.pdf` 文件关联；安装界面支持简体中文、English、繁體中文和日本語 |
+| MSI 安装包 | `YetAnotherPDFReader_x.y.z_windows_x64.msi` | 适合企业批量部署（组策略、Intune 等） |
+| **便携版** | `YetAnotherPDFReader_x.y.z_windows_x64_portable.zip` | 解压即用。设置、最近文件、日志和缓存都保存在程序旁边的 `data` 文件夹里，可以放在 U 盘中随身携带 |
+| 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_linux_x64.deb` | Debian、Ubuntu、Linux Mint 等：`sudo apt install ./YetAnotherPDFReader_x.y.z_linux_x64.deb` |
+| 🐧 Linux rpm | `YetAnotherPDFReader_x.y.z_linux_x64.rpm` | Fedora、openSUSE 等：`sudo dnf install ./YetAnotherPDFReader_x.y.z_linux_x64.rpm` |
+| 🐧 AppImage | `YetAnotherPDFReader_x.y.z_linux_x64.AppImage` | 适用于任意发行版：`chmod +x` 后直接运行 |
+| 🍎 **macOS（Apple 芯片）** | `YetAnotherPDFReader_x.y.z_macos_arm64.dmg` | M1 及更新的 Mac：打开后把应用拖到「应用程序」文件夹 |
+| 🍎 macOS（Intel） | `YetAnotherPDFReader_x.y.z_macos_x64.dmg` | Intel 芯片的 Mac（下一个版本起提供） |
+| 🐧 Linux ARM64 | `YetAnotherPDFReader_x.y.z_linux_arm64.deb`<br>`YetAnotherPDFReader_x.y.z_linux_arm64.rpm`<br>`YetAnotherPDFReader_x.y.z_linux_arm64.AppImage` | ARM64 设备（树莓派 4/5 的 64 位系统、ARM 服务器和笔记本等），用法同上（下一个版本起提供） |
 
 **系统要求**：Windows 10 / 11（x64）；macOS 13.4（Ventura）及以上；或 Linux x86_64 / ARM64（glibc 2.35 及以上，例如 Ubuntu 22.04、Debian 12、Fedora 36 及更新版本，需要 WebKitGTK 4.1；deb / rpm 安装时会自动安装依赖）。Windows 上程序使用系统中的 Microsoft Edge WebView2 运行时，Windows 11 和保持更新的 Windows 10 都已自带。如果系统中没有，安装版会自动下载安装；便携版请先手动安装 [WebView2 运行时](https://developer.microsoft.com/microsoft-edge/webview2/)。
 

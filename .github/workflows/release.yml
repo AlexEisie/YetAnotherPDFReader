@@ -52,6 +52,7 @@ jobs:
         with:
           ref: ${{ env.TAG }}
       - name: The version matches the tag
+        if: startsWith(env.TAG, 'v')
         run: |
           version="v$(node -p "require('./package.json').version")"
           [ "$version" = "$TAG" ] || { echo "package.json says $version, the tag is $TAG"; exit 1; }
@@ -102,11 +103,13 @@ jobs:
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
           New-Item -ItemType Directory -Force release-files, portable/YetAnotherPDFReader | Out-Null
-          Copy-Item target/release/bundle/nsis/*.exe, target/release/bundle/msi/*.msi release-files/
+          $name = "YetAnotherPDFReader_${version}_windows_x64"
+          Copy-Item target/release/bundle/nsis/*.exe "release-files/$name-setup.exe"
+          Copy-Item target/release/bundle/msi/*.msi "release-files/$name.msi"
           Copy-Item target/release/yapr.exe portable/YetAnotherPDFReader/YetAnotherPDFReader.exe
           Copy-Item LICENSE, THIRD-PARTY-NOTICES.md portable/YetAnotherPDFReader/
           Copy-Item ci/packaging/portable portable/YetAnotherPDFReader/portable
-          Compress-Archive -Path portable/YetAnotherPDFReader -DestinationPath "release-files/YetAnotherPDFReader_${version}_x64_portable.zip"
+          Compress-Archive -Path portable/YetAnotherPDFReader -DestinationPath "release-files/${name}_portable.zip"
           Get-ChildItem release-files
       - uses: actions/upload-artifact@v4
         with:
@@ -123,10 +126,12 @@ jobs:
       matrix:
         include:
           - target: aarch64-apple-darwin
+            arch: arm64
             config: '{"bundle":{"macOS":{"minimumSystemVersion":"13.4"}}}'
           # No prebuilt static ONNX Runtime for Intel Macs: ship the official shared library in
           # Contents/Frameworks (loaded at run time); no hardened runtime, so it may be loaded.
           - target: x86_64-apple-darwin
+            arch: x64
             ort: onnxruntime-osx-x86_64-1.22.0
             config: '{"bundle":{"macOS":{"minimumSystemVersion":"13.4","hardenedRuntime":false,"frameworks":["ocr/macos/libonnxruntime.dylib"]}}}'
     env:
@@ -160,7 +165,14 @@ jobs:
           softwareupdate --install-rosetta --agree-to-license || true
       - run: npx tauri build --target ${{ matrix.target }} --bundles app,dmg --config '${{ matrix.config }}'
       - name: OCR tests
-        run: cargo test -p yapr --release --target ${{ matrix.target }} ocr
+        run: |
+          set +e
+          cargo test -p yapr --release --target ${{ matrix.target }} ocr 2>&1 | tee ocr-tests.log
+          status=${PIPESTATUS[0]}
+          grep -q "test result: ok\." ocr-tests.log && ! grep -q "FAILED" ocr-tests.log || exit 1
+          # Intel: the shared ONNX Runtime may abort while the test process exits (its static
+          # destructors); the app ends without running them (lib.rs). Only the results count there.
+          [ "$status" = 0 ] || [ "${{ matrix.arch }}" = x64 ]
       - name: Check the bundle
         run: |
           app="$(find target/${{ matrix.target }}/release/bundle/macos -maxdepth 1 -name '*.app' | head -1)"
@@ -169,7 +181,10 @@ jobs:
           otool -L "$exe"
           ls -la "$app/Contents/Frameworks" 2>/dev/null || true
           codesign --verify --deep --strict --verbose=2 "$app"
-          mkdir -p release-files && cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg release-files/ && ls -la release-files
+          version="$(node -p "require('./package.json').version")"
+          mkdir -p release-files
+          cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg "release-files/YetAnotherPDFReader_${version}_macos_${{ matrix.arch }}.dmg"
+          ls -la release-files
       - uses: actions/upload-artifact@v4
         with:
           name: macos-${{ matrix.target }}
@@ -203,10 +218,19 @@ jobs:
         with:
           key: linux-${{ matrix.arch }}
       - run: bash scripts/build-linux.sh
+      - name: Name the packages
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          name="YetAnotherPDFReader_${version}_linux_${{ matrix.arch }}"
+          mkdir -p release-files
+          cp target/linux-bundle/*"${version}"*.deb "release-files/$name.deb"
+          cp target/linux-bundle/*"${version}"*.rpm "release-files/$name.rpm"
+          cp target/linux-bundle/*"${version}"*.AppImage "release-files/$name.AppImage"
+          ls -la release-files
       - uses: actions/upload-artifact@v4
         with:
           name: linux-${{ matrix.arch }}
-          path: target/linux-bundle/*
+          path: release-files/*
           if-no-files-found: error
 
   publish:

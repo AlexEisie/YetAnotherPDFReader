@@ -8,7 +8,7 @@
 
 - **macOS Intel 版本**：Intel 芯片的 Mac 改为在运行时加载官方 ONNX Runtime，提供 Intel 版 dmg。
 - **Linux ARM64 版本**：提供 ARM64 的 deb、rpm 和 AppImage（树莓派 4/5 的 64 位系统等）。
-- 所有安装包改由 GitHub Actions 自动构建和发布。
+- 所有安装包改由 GitHub Actions 自动构建和发布；文件名包含平台和架构，例如 `YetAnotherPDFReader_x.y.z_windows_x64-setup.exe`、`_macos_arm64.dmg`、`_linux_arm64.deb`。
 
 ### v0.4.1 — 新图标
 
@@ -77,7 +77,7 @@
 
 - **macOS Intel build**: Intel Macs load the official ONNX Runtime at run time; an Intel DMG is provided.
 - **Linux ARM64 builds**: deb, rpm and AppImage for ARM64 (64-bit Raspberry Pi 4/5 systems and more).
-- Every package is now built and published by GitHub Actions.
+- Every package is now built and published by GitHub Actions; file names include the platform and architecture, e.g. `YetAnotherPDFReader_x.y.z_windows_x64-setup.exe`, `_macos_arm64.dmg`, `_linux_arm64.deb`.
 
 ### v0.4.1 — New icon
 

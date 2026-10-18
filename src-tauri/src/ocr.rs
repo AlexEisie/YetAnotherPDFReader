@@ -4,7 +4,7 @@
 //! created on first use (about 0.1 s) and then shared; recognising a page rendered at 150–200
 //! dpi takes a fraction of a second on a typical CPU.
 
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Arc, Mutex};
 
 use oar_ocr::core::config::OrtSessionConfig;
 use oar_ocr::prelude::*;
@@ -46,7 +46,7 @@ fn load_runtime() -> AppResult<()> {
     #[cfg(target_os = "macos")]
     const LIBRARY: (&str, &str) = ("libonnxruntime.dylib", "libonnxruntime.dylib");
 
-    static LOADED: OnceLock<Result<(), String>> = OnceLock::new();
+    static LOADED: std::sync::OnceLock<Result<(), String>> = std::sync::OnceLock::new();
     LOADED
         .get_or_init(|| {
             let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(std::path::Path::to_path_buf));
@@ -76,14 +76,12 @@ fn load_runtime() -> AppResult<()> {
     Ok(())
 }
 
+/// The shared engine, created on first use.
+static ENGINE: Mutex<Option<Arc<Mutex<OAROCR>>>> = Mutex::new(None);
+
 fn engine() -> AppResult<Arc<Mutex<OAROCR>>> {
-    static ENGINE: OnceLock<Arc<Mutex<OAROCR>>> = OnceLock::new();
-    static INIT: Mutex<()> = Mutex::new(());
-    if let Some(engine) = ENGINE.get() {
-        return Ok(engine.clone());
-    }
-    let _guard = INIT.lock().unwrap_or_else(|e| e.into_inner());
-    if let Some(engine) = ENGINE.get() {
+    let mut slot = ENGINE.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some(engine) = slot.as_ref() {
         return Ok(engine.clone());
     }
     load_runtime()?;
@@ -96,7 +94,15 @@ fn engine() -> AppResult<Arc<Mutex<OAROCR>>> {
         .build()
         .map_err(ocr_error)?;
     log::info!("OCR engine ready in {} ms", started.elapsed().as_millis());
-    Ok(ENGINE.get_or_init(|| Arc::new(Mutex::new(ocr))).clone())
+    let engine = Arc::new(Mutex::new(ocr));
+    *slot = Some(engine.clone());
+    Ok(engine)
+}
+
+/// Whether the engine (and so ONNX Runtime) has been loaded in this process.
+#[cfg_attr(not(all(target_os = "macos", target_arch = "x86_64")), allow(dead_code))]
+pub fn engine_loaded() -> bool {
+    ENGINE.lock().map_or(true, |slot| slot.is_some())
 }
 
 /// Composite RGBA pixels over white.

@@ -46,19 +46,19 @@
 > [!TIP]
 > **New in v0.4.0**: an in-app user guide (`F1`), update checks (optionally daily / weekly, off by default), and a short "what's new" after each update. v0.3.0 added offline text recognition (OCR); v0.2.0 added the page organizer, merging and splitting, watermarks, password protection and Linux builds. See the [changelog](CHANGELOG.md#english).
 
-Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest):
+Get the latest version from [Releases](https://github.com/AlexEisie/YetAnotherPDFReader/releases/latest) (from v0.4.2 on, file names include the platform and architecture):
 
 | Package | File | Notes |
 | --- | --- | --- |
-| **Installer (recommended)** | `YetAnotherPDFReader_x.y.z_x64-setup.exe` | Per-user install, **no administrator rights needed**; registers the `.pdf` file association; setup in English, 简体中文, 繁體中文 and 日本語 |
-| MSI package | `YetAnotherPDFReader_x.y.z_x64_en-US.msi` | For managed deployment (Group Policy, Intune, …) |
-| **Portable** | `YetAnotherPDFReader_x.y.z_x64_portable.zip` | Unzip and run. Settings, recent files, logs and caches stay in a `data` folder next to the program, so it can live on a USB stick |
-| 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_amd64.deb` | Debian, Ubuntu, Linux Mint, …: `sudo apt install ./YetAnotherPDFReader_x.y.z_amd64.deb` |
-| 🐧 Linux rpm | `YetAnotherPDFReader-x.y.z-1.x86_64.rpm` | Fedora, openSUSE, …: `sudo dnf install ./YetAnotherPDFReader-x.y.z-1.x86_64.rpm` |
-| 🐧 AppImage | `YetAnotherPDFReader_x.y.z_amd64.AppImage` | Any distribution: `chmod +x` and run |
-| 🍎 **macOS (Apple silicon)** | `YetAnotherPDFReader_x.y.z_aarch64.dmg` | M1 and newer Macs: open it and drag the app to *Applications* |
-| 🍎 macOS (Intel) | `YetAnotherPDFReader_x.y.z_x64.dmg` | Intel Macs (from the next release) |
-| 🐧 Linux ARM64 | `YetAnotherPDFReader_x.y.z_arm64.deb`<br>`YetAnotherPDFReader-x.y.z-1.aarch64.rpm`<br>`YetAnotherPDFReader_x.y.z_aarch64.AppImage` | ARM64 devices (64-bit Raspberry Pi 4/5 systems, ARM servers and laptops, …), used as above (from the next release) |
+| **Installer (recommended)** | `YetAnotherPDFReader_x.y.z_windows_x64-setup.exe` | Per-user install, **no administrator rights needed**; registers the `.pdf` file association; setup in English, 简体中文, 繁體中文 and 日本語 |
+| MSI package | `YetAnotherPDFReader_x.y.z_windows_x64.msi` | For managed deployment (Group Policy, Intune, …) |
+| **Portable** | `YetAnotherPDFReader_x.y.z_windows_x64_portable.zip` | Unzip and run. Settings, recent files, logs and caches stay in a `data` folder next to the program, so it can live on a USB stick |
+| 🐧 **Linux deb** | `YetAnotherPDFReader_x.y.z_linux_x64.deb` | Debian, Ubuntu, Linux Mint, …: `sudo apt install ./YetAnotherPDFReader_x.y.z_linux_x64.deb` |
+| 🐧 Linux rpm | `YetAnotherPDFReader_x.y.z_linux_x64.rpm` | Fedora, openSUSE, …: `sudo dnf install ./YetAnotherPDFReader_x.y.z_linux_x64.rpm` |
+| 🐧 AppImage | `YetAnotherPDFReader_x.y.z_linux_x64.AppImage` | Any distribution: `chmod +x` and run |
+| 🍎 **macOS (Apple silicon)** | `YetAnotherPDFReader_x.y.z_macos_arm64.dmg` | M1 and newer Macs: open it and drag the app to *Applications* |
+| 🍎 macOS (Intel) | `YetAnotherPDFReader_x.y.z_macos_x64.dmg` | Intel Macs (from the next release) |
+| 🐧 Linux ARM64 | `YetAnotherPDFReader_x.y.z_linux_arm64.deb`<br>`YetAnotherPDFReader_x.y.z_linux_arm64.rpm`<br>`YetAnotherPDFReader_x.y.z_linux_arm64.AppImage` | ARM64 devices (64-bit Raspberry Pi 4/5 systems, ARM servers and laptops, …), used as above (from the next release) |
 
 **Requirements**: Windows 10 / 11 (x64); macOS 13.4 (Ventura) or later; or Linux x86_64 / ARM64 with glibc 2.35+ (Ubuntu 22.04, Debian 12, Fedora 36 or newer) and WebKitGTK 4.1 — the deb / rpm packages pull in their dependencies. On Windows, the app uses the Microsoft Edge WebView2 runtime that ships with Windows 11 and up-to-date Windows 10. If it is missing, the installer downloads it automatically; for the portable version, install the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) first.
 

@@ -272,6 +272,18 @@ pub fn run() {
         if let tauri::RunEvent::Exit = event {
             let open = app.state::<AppState>().sessions.len();
             log::info!("exiting ({open} document session(s) still open)");
+            // On Intel Macs ONNX Runtime is a shared library whose static destructors abort the
+            // process ("mutex lock failed") once OCR has run. Everything is saved by now (window
+            // state is saved by its plugin before this callback), so end without running them.
+            #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+            if ocr::engine_loaded() {
+                log::logger().flush();
+                unsafe extern "C" {
+                    fn _exit(status: std::os::raw::c_int) -> !;
+                }
+                // SAFETY: terminates the process; nothing runs afterwards.
+                unsafe { _exit(0) }
+            }
         }
     });
 }

@@ -47,9 +47,9 @@ const fakeRelease = {
   html_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/tag/v9.9.9",
   published_at: "2030-01-01T00:00:00Z",
   assets: [
-    { name: "YetAnotherPDFReader_9.9.9_x64-setup.exe", browser_download_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/download/v9.9.9/YetAnotherPDFReader_9.9.9_x64-setup.exe", size: 16_000_000 },
-    { name: "YetAnotherPDFReader_9.9.9_x64_portable.zip", browser_download_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/download/v9.9.9/YetAnotherPDFReader_9.9.9_x64_portable.zip", size: 19_000_000 },
-    { name: "YetAnotherPDFReader_9.9.9_amd64.deb", browser_download_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/download/v9.9.9/YetAnotherPDFReader_9.9.9_amd64.deb", size: 20_000_000 },
+    { name: "YetAnotherPDFReader_9.9.9_windows_x64-setup.exe", browser_download_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/download/v9.9.9/YetAnotherPDFReader_9.9.9_windows_x64-setup.exe", size: 16_000_000 },
+    { name: "YetAnotherPDFReader_9.9.9_windows_x64_portable.zip", browser_download_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/download/v9.9.9/YetAnotherPDFReader_9.9.9_windows_x64_portable.zip", size: 19_000_000 },
+    { name: "YetAnotherPDFReader_9.9.9_linux_x64.deb", browser_download_url: "https://github.com/AlexEisie/YetAnotherPDFReader/releases/download/v9.9.9/YetAnotherPDFReader_9.9.9_linux_x64.deb", size: 20_000_000 },
   ],
 };
 

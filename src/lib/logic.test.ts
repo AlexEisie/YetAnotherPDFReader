@@ -413,6 +413,23 @@ describe("update check", async () => {
     expect(compareVersions("1.0.0-rc.1", "1.0.0-rc.2")).toBeLessThan(0);
   });
 
+  // Names since 0.4.2: YetAnotherPDFReader_<version>_<platform>_<arch>.<ext>
+  const named = ["windows_x64-setup.exe", "windows_x64.msi", "windows_x64_portable.zip", "macos_arm64.dmg", "macos_x64.dmg"]
+    .concat(["x64", "arm64"].flatMap((arch) => ["deb", "rpm", "AppImage"].map((ext) => `linux_${arch}.${ext}`)))
+    .map((suffix) => `YetAnotherPDFReader_0.4.2_${suffix}`)
+    .map((name) => ({ name, url: `https://github.com/x/${name}`, size: 1 }));
+
+  it("offers the package matching the platform, architecture and installation", () => {
+    const pick = (platform: string, arch: string, kind: string) => pickAsset(named, platform, arch, kind)?.name.replace(/^.*0\.4\.2_/, "");
+    expect(pick("windows", "x86_64", "installer")).toBe("windows_x64-setup.exe");
+    expect(pick("windows", "x86_64", "portable")).toBe("windows_x64_portable.zip");
+    expect(pick("macos", "aarch64", "installer")).toBe("macos_arm64.dmg");
+    expect(pick("macos", "x86_64", "installer")).toBe("macos_x64.dmg");
+    expect(pick("linux", "x86_64", "deb")).toBe("linux_x64.deb");
+    expect(pick("linux", "aarch64", "rpm")).toBe("linux_arm64.rpm");
+    expect(pick("linux", "aarch64", "appimage")).toBe("linux_arm64.AppImage");
+  });
+
   it("offers the package matching the installation", () => {
     expect(pickAsset(assets, "windows", "x86_64", "installer")?.name).toMatch(/setup\.exe$/);
     expect(pickAsset(assets, "windows", "x86_64", "portable")?.name).toMatch(/portable\.zip$/);
