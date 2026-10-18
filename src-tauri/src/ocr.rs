@@ -36,10 +36,16 @@ fn ocr_error(message: impl std::fmt::Display) -> AppError {
 }
 
 /// Linux packages ship the official ONNX Runtime shared library next to the application
-/// (`/usr/lib/yapr/` for deb / rpm, `usr/lib/yapr/` inside the AppImage); load it before the
-/// first session is created.
-#[cfg(target_os = "linux")]
+/// (`/usr/lib/yapr/` for deb / rpm, `usr/lib/yapr/` inside the AppImage), the Intel Mac app in
+/// `Contents/Frameworks/`; load it before the first session is created.
+#[cfg(any(target_os = "linux", all(target_os = "macos", target_arch = "x86_64")))]
 fn load_runtime() -> AppResult<()> {
+    // Bundled file name, and the name tried last (a system-wide installation).
+    #[cfg(target_os = "linux")]
+    const LIBRARY: (&str, &str) = ("libonnxruntime.so", "libonnxruntime.so.1");
+    #[cfg(target_os = "macos")]
+    const LIBRARY: (&str, &str) = ("libonnxruntime.dylib", "libonnxruntime.dylib");
+
     static LOADED: OnceLock<Result<(), String>> = OnceLock::new();
     LOADED
         .get_or_init(|| {
@@ -51,11 +57,12 @@ fn load_runtime() -> AppResult<()> {
                 }
             }
             if let Some(dir) = &exe_dir {
-                candidates.push(dir.join("libonnxruntime.so"));
-                candidates.push(dir.join("../lib/yapr/libonnxruntime.so"));
+                candidates.push(dir.join(LIBRARY.0));
+                candidates.push(dir.join("../lib/yapr").join(LIBRARY.0));
+                candidates.push(dir.join("../Frameworks").join(LIBRARY.0));
             }
-            candidates.push("/usr/lib/yapr/libonnxruntime.so".into());
-            let path = candidates.into_iter().find(|p| p.is_file()).unwrap_or_else(|| "libonnxruntime.so.1".into());
+            candidates.push(std::path::Path::new("/usr/lib/yapr").join(LIBRARY.0));
+            let path = candidates.into_iter().find(|p| p.is_file()).unwrap_or_else(|| LIBRARY.1.into());
             ort::init_from(&path).map_err(|e| format!("ONNX Runtime ({}) could not be loaded: {e}", path.display()))?.commit();
             log::info!("ONNX Runtime loaded from {}", path.display());
             Ok(())
@@ -64,7 +71,7 @@ fn load_runtime() -> AppResult<()> {
         .map_err(AppError::Ocr)
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", all(target_os = "macos", target_arch = "x86_64"))))]
 fn load_runtime() -> AppResult<()> {
     Ok(())
 }

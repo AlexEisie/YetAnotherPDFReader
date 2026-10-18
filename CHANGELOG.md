@@ -7,7 +7,7 @@
 ### v0.4.1 — 新图标
 
 - 全新的应用图标，用于程序窗口、任务栏、开始页和「关于」页面；Windows 安装程序也改用应用图标。
-- **macOS 版本**：提供 Apple 芯片和 Intel 两个 dmg（macOS 13.4 及以上），由 GitHub Actions 构建；暂未经过 Apple 公证。
+- **macOS 版本**（Apple 芯片，macOS 13.4 及以上）：由 GitHub Actions 构建的 dmg，暂未经过 Apple 公证。
 
 ### v0.4.0 — 使用说明、检查更新与新功能介绍
 
@@ -70,7 +70,7 @@
 ### v0.4.1 — New icon
 
 - A new app icon for the window, the taskbar, the start page and the About page; the Windows installer now uses it too.
-- **macOS builds**: DMGs for Apple silicon and Intel (macOS 13.4 or later), built by GitHub Actions; not notarized yet.
+- **macOS build** (Apple silicon, macOS 13.4 or later): a DMG built by GitHub Actions; not notarized yet.
 
 ### v0.4.0 — User guide, update check and what's new
 

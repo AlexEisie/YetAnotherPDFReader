@@ -121,7 +121,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [aarch64-apple-darwin, x86_64-apple-darwin]
+        include:
+          - target: aarch64-apple-darwin
+            config: '{"bundle":{"macOS":{"minimumSystemVersion":"13.4"}}}'
+          # No prebuilt static ONNX Runtime for Intel Macs: ship the official shared library in
+          # Contents/Frameworks (loaded at run time); no hardened runtime, so it may be loaded.
+          - target: x86_64-apple-darwin
+            ort: onnxruntime-osx-x86_64-1.22.0
+            config: '{"bundle":{"macOS":{"minimumSystemVersion":"13.4","hardenedRuntime":false,"frameworks":["ocr/macos/libonnxruntime.dylib"]}}}'
     env:
       # The prebuilt ONNX Runtime (OCR) needs macOS 13.4 or later.
       MACOSX_DEPLOYMENT_TARGET: "13.4"
@@ -142,15 +149,25 @@ jobs:
         with:
           key: ${{ matrix.target }}
       - run: npm ci --no-audit --no-fund
-      - run: >
-          npx tauri build --target ${{ matrix.target }} --bundles app,dmg
-          --config '{"bundle":{"macOS":{"minimumSystemVersion":"13.4"}}}'
+      - name: ONNX Runtime shared library
+        if: matrix.ort
+        run: |
+          curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/${{ matrix.ort }}.tgz" | tar -xz -C "$RUNNER_TEMP"
+          mkdir -p src-tauri/ocr/macos
+          cp -L "$RUNNER_TEMP/${{ matrix.ort }}/lib/libonnxruntime.dylib" src-tauri/ocr/macos/libonnxruntime.dylib
+          echo "ORT_DYLIB_PATH=$GITHUB_WORKSPACE/src-tauri/ocr/macos/libonnxruntime.dylib" >> "$GITHUB_ENV"
+          # Intel binaries run under Rosetta on the Apple silicon runner (for the OCR tests).
+          softwareupdate --install-rosetta --agree-to-license || true
+      - run: npx tauri build --target ${{ matrix.target }} --bundles app,dmg --config '${{ matrix.config }}'
+      - name: OCR tests
+        run: cargo test -p yapr --release --target ${{ matrix.target }} ocr
       - name: Check the bundle
         run: |
           app="$(find target/${{ matrix.target }}/release/bundle/macos -maxdepth 1 -name '*.app' | head -1)"
           exe="$app/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Contents/Info.plist")"
           lipo -archs "$exe"
           otool -L "$exe"
+          ls -la "$app/Contents/Frameworks" 2>/dev/null || true
           codesign --verify --deep --strict --verbose=2 "$app"
           mkdir dist && cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/ && ls -la dist
       - uses: actions/upload-artifact@v4

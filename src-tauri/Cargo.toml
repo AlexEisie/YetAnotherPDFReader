@@ -38,10 +38,11 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 tempfile = "3"
 
 # ONNX Runtime is linked statically where the prebuilt libraries fit the platform, and loaded
-# at run time on Linux (the prebuilt static library needs glibc 2.38+; the official shared
-# library runs on glibc 2.28+ and is shipped inside the Linux packages).
-[target.'cfg(not(target_os = "linux"))'.dependencies]
+# at run time from Microsoft's official shared library, shipped inside the packages, elsewhere:
+# on Linux (the prebuilt static library needs glibc 2.38+; the shared one runs on 2.28+) and on
+# Intel Macs (there is no prebuilt static library for them).
+[target.'cfg(not(any(target_os = "linux", all(target_os = "macos", target_arch = "x86_64"))))'.dependencies]
 ort = { version = "=2.0.0-rc.13", default-features = false, features = ["download-binaries", "tls-native", "std", "ndarray", "tracing"] }
 
-[target.'cfg(target_os = "linux")'.dependencies]
+[target.'cfg(any(target_os = "linux", all(target_os = "macos", target_arch = "x86_64")))'.dependencies]
 ort = { version = "=2.0.0-rc.13", default-features = false, features = ["load-dynamic", "std", "ndarray", "tracing"] }

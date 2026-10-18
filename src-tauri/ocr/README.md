@@ -15,3 +15,11 @@ character dictionary (6 904 characters: Chinese, English letters, digits and pun
 
 The models are compiled into the application (`include_bytes!` in `src/ocr.rs`), so OCR works
 offline and the portable build stays a single executable.
+
+## ONNX Runtime
+
+Windows and Apple silicon Macs link ONNX Runtime statically (prebuilt by the `ort` crate).
+Linux and Intel Macs load Microsoft's official shared library (1.22.0) at run time instead:
+`scripts/build-linux.sh` puts `libonnxruntime.so` in `ocr/linux/` for the packages, and the
+Release workflow puts `libonnxruntime.dylib` in `ocr/macos/` for the Intel Mac app
+(`Contents/Frameworks/`). When running from source there, point `ORT_DYLIB_PATH` at the library.
